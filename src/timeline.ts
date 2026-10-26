@@ -33,3 +33,38 @@ export const messageIdOf = async (idempotencyKey: string) => {
   const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(idempotencyKey)))
   return `message/${[...hash.slice(0, 8)].map((b) => b.toString(16).padStart(2, '0')).join('')}`
 }
+
+/** One page of a session's timeline, newest first; `cursor` reads the page before it. */
+export type TimelinePage = { readonly entries: readonly Entry[]; readonly hasMore: boolean; readonly cursor?: string }
+
+/** st keeps a page cursor for five minutes; an older one starts again from the newest page. */
+export const CURSOR_LIFE_MS = 240_000
+
+/**
+ * The page before `oldest`. A fresh cursor continues where the last page ended. Without one, pages
+ * are read again from the newest until one reaches past `oldest`, so nothing between is skipped.
+ */
+export const pageBefore = async (
+  read: (cursor?: string) => Promise<TimelinePage>,
+  cursor: { readonly value: string; readonly at: number } | undefined,
+  oldest: Entry | undefined,
+  now = Date.now(),
+): Promise<TimelinePage> => {
+  if (cursor !== undefined && now - cursor.at < CURSOR_LIFE_MS) return read(cursor.value)
+  let next: string | undefined
+  // Bounded, so a very long session stops instead of reading forever.
+  for (let hop = 0; hop < 50; hop++) {
+    const page = await read(next)
+    const reaches = oldest === undefined || page.entries.some((e) => at(e) < at(oldest))
+    if (reaches || !page.hasMore || page.cursor === undefined) return page
+    next = page.cursor
+  }
+  throw new Error('This session is too long to read further back.')
+}
+
+/** Adds an older page; entries already held win, since the live follow has their newest revision. */
+export const withOlder = (byId: ReadonlyMap<string, Entry>, page: readonly Entry[]) => {
+  const next = new Map(byId)
+  for (const entry of page) if (!next.has(entry.id)) next.set(entry.id, entry)
+  return next
+}

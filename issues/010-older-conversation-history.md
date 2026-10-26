@@ -1,6 +1,6 @@
 # Older conversation history
 
-Status: idea
+Status: in-mission (polychrome/older-history)
 
 A conversation shows only the newest page the live follow delivers, often just the last few minutes of a busy agent. There's no way to scroll back further.
 

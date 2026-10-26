@@ -1,7 +1,7 @@
-import type { CollectionSocket, CollectionSocketFactory } from '@fractal/client'
-import { St3, St3Live, type DecodedAgent } from '@fractal/sdk/effect'
+import { FractalClient, type CollectionFrame, type CollectionSocket, type CollectionSocketFactory } from '@fractal/client'
+import { decodeConversationChunk, St3, St3Live, type DecodedAgent } from '@fractal/sdk/effect'
 import { Effect, Fiber, ManagedRuntime, Stream } from 'effect'
-import { fold, ordered, type Entry } from './timeline.ts'
+import { fold, ordered, pageBefore, withOlder, type Entry, type TimelinePage } from './timeline.ts'
 
 export type Agent = DecodedAgent
 
@@ -42,26 +42,89 @@ export const canSend = () =>
     }),
   )
 
-export type ConversationState = { entries: readonly Entry[]; live: boolean }
+export type ConversationState = {
+  readonly entries: readonly Entry[]
+  /** False while the socket reconnects. */
+  readonly live: boolean
+  /** True once the session's first entry is held, or when there is no session to page through. */
+  readonly start: boolean
+  readonly loadingOlder: boolean
+  readonly olderFailed?: string
+}
 
-/** Follows one agent's conversation; `live` is false while the socket reconnects. */
-export const followConversation = (ref: string, onChange: (state: ConversationState) => void) => {
+// Older pages come over HTTP; the SDK's live follow carries only the newest window.
+const client = new FractalClient({ baseUrl: window.location.origin, fetchImpl: fetch.bind(window), client: 'polychrome' })
+const OLDER_PAGE = 200
+
+const readTimeline = (sessionId: string) => async (cursor?: string): Promise<TimelinePage> => {
+  const { value } = await client.timelineList(sessionId, { limit: OLDER_PAGE, ...(cursor ? { cursor } : {}) })
+  // Decoded as a frame, so older entries have the same shape as live ones.
+  const frame = { kind: 'conversation', id: 'older', replace: false, has_more: value.page.has_more, items: value.items }
+  const { entries } = decodeConversationChunk(frame as Extract<CollectionFrame, { kind: 'conversation' }>)
+  return { entries, hasMore: value.page.has_more, ...(value.page.next_cursor ? { cursor: value.page.next_cursor } : {}) }
+}
+
+/**
+ * Follows one agent's conversation. `loadOlder` reads the page before the oldest entry held; a
+ * replace frame starts a new history, and pages requested before it are dropped.
+ */
+export const followConversation = (ref: string, sessionId: string | undefined, onChange: (state: ConversationState) => void) => {
   let byId: ReadonlyMap<string, Entry> = new Map()
-  const publish = (live: boolean) => onChange({ entries: ordered(byId), live })
+  let live = false
+  let history = 0
+  let cursor: { value: string; at: number } | undefined
+  let start = sessionId === undefined
+  let loadingOlder = false
+  let olderFailed: string | undefined
+  const publish = () =>
+    onChange({ entries: ordered(byId), live, start, loadingOlder, ...(olderFailed ? { olderFailed } : {}) })
+
   const fiber = runtime.runFork(
     Effect.gen(function* () {
       const st3 = yield* St3
       yield* Stream.runForEach(st3.followConversation({ _tag: 'Conversation', ref }), (event) =>
         Effect.sync(() => {
-          if (event._tag !== 'Observed') return publish(false)
-          byId = fold(byId, event.value)
-          publish(true)
+          live = event._tag === 'Observed'
+          if (event._tag === 'Observed') {
+            if (event.value.replace) {
+              history++
+              cursor = undefined
+              start = sessionId === undefined || !event.value.hasMore
+              loadingOlder = false
+            }
+            byId = fold(byId, event.value)
+          }
+          publish()
         }),
       )
     }),
   )
-  return () => {
-    runtime.runFork(Fiber.interrupt(fiber))
+
+  const loadOlder = async () => {
+    if (sessionId === undefined || start || loadingOlder) return
+    const asked = history
+    loadingOlder = true
+    olderFailed = undefined
+    publish()
+    try {
+      const page = await pageBefore(readTimeline(sessionId), cursor, ordered(byId)[0])
+      if (asked !== history) return
+      byId = withOlder(byId, page.entries)
+      cursor = page.cursor === undefined ? undefined : { value: page.cursor, at: Date.now() }
+      start = !page.hasMore
+    } catch (cause) {
+      if (asked !== history) return
+      olderFailed = cause instanceof Error ? cause.message : 'Earlier messages could not be read.'
+    }
+    loadingOlder = false
+    publish()
+  }
+
+  return {
+    loadOlder,
+    stop: () => {
+      runtime.runFork(Fiber.interrupt(fiber))
+    },
   }
 }
 

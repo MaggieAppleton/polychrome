@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { followConversation, sendMessage, type ConversationState } from './fractal.ts'
@@ -56,25 +56,51 @@ function RowView({ row, name }: { row: Row; name: string }) {
   }
 }
 
-export function Conversation({ agentId, name, granted }: { agentId: string; name: string; granted?: boolean }) {
-  const [state, setState] = useState<ConversationState>({ entries: [], live: false })
+// Within this many pixels of the top, the page before is read.
+const NEAR_TOP = 400
+
+export function Conversation({ agentId, sessionId, name, granted }: { agentId: string; sessionId?: string; name: string; granted?: boolean }) {
+  const [state, setState] = useState<ConversationState>({ entries: [], live: false, start: false, loadingOlder: false })
   const [draft, setDraft] = useState('')
   const [pending, setPending] = useState<readonly Pending[]>([])
   const scroller = useRef<HTMLDivElement>(null)
   const atBottom = useRef(true)
+  const loadOlder = useRef<() => Promise<void>>(async () => {})
+  // Distance from the bottom while an older page loads, so rows added above don't move the reader.
+  const anchor = useRef<number | null>(null)
 
-  useEffect(() => followConversation(agentId, setState), [agentId])
+  useEffect(() => {
+    const follow = followConversation(agentId, sessionId, setState)
+    loadOlder.current = follow.loadOlder
+    return follow.stop
+  }, [agentId, sessionId])
+
+  const readBack = () => {
+    const el = scroller.current
+    if (!el || state.start || state.loadingOlder) return
+    anchor.current = el.scrollHeight - el.scrollTop
+    void loadOlder.current()
+  }
 
   const thread = useMemo(() => toThread(state.entries), [state.entries])
   // A sent message stays as pending until mail with its id arrives in the thread.
   const shown = useMemo(() => shownMessageIds(state.entries), [state.entries])
   const outbox = pending.filter((p) => p.error !== undefined || !shown.has(p.messageId))
 
-  // Follow new rows only while the reader is at the bottom.
+  // Follow new rows only while the reader is at the bottom; after an older page, hold their place.
+  useLayoutEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    if (atBottom.current) el.scrollTop = el.scrollHeight
+    else if (anchor.current !== null) el.scrollTop = el.scrollHeight - anchor.current
+    if (!state.loadingOlder) anchor.current = null
+  }, [thread.rows.length, outbox.length, state.loadingOlder])
+
+  // Until the thread can scroll, read back on its own; a failure waits for the reader to scroll.
   useEffect(() => {
     const el = scroller.current
-    if (el && atBottom.current) el.scrollTop = el.scrollHeight
-  }, [thread.rows.length, outbox.length])
+    if (el && state.live && !state.olderFailed && el.scrollHeight <= el.clientHeight + NEAR_TOP) readBack()
+  })
 
   const send = async () => {
     const text = draft.trim()
@@ -100,9 +126,11 @@ export function Conversation({ agentId, name, granted }: { agentId: string; name
         onScroll={(e) => {
           const el = e.currentTarget
           atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 32
+          if (el.scrollTop < NEAR_TOP) readBack()
         }}
       >
-        {state.live && thread.rows.length === 0 && <p className="notice">No messages yet.</p>}
+        {state.olderFailed && <p className="quiet failed">{state.olderFailed}</p>}
+        {state.live && state.start && thread.rows.length === 0 && <p className="notice">No messages yet.</p>}
         {thread.rows.map((row) => <RowView key={row.id} row={row} name={name} />)}
         {outbox.map((p) => (
           <article key={p.key} className="message user pending">
