@@ -12,6 +12,7 @@ mission "polychrome/quality" state="ready" {
   goal "The reviewed branch is merged into main locally."
   constraint "Run locally only. Publish, push or deploy nothing."
   constraint "Treat reference/fractal as read-only reference; never change Fractal itself."
+  constraint "Hand well-defined, rote work (running commands, searching files, gathering diffs, taking screenshots) to a cheaper subagent: in Claude, the Agent tool with model haiku or sonnet; in Codex, a smaller model. Keep judgement, review conclusions and code changes for yourself."
 
   agent "architecture" {
     workspace "${ST_WORKSPACE}"
