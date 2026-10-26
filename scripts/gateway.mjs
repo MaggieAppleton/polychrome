@@ -23,8 +23,12 @@ const admitted = (req, port) => {
 
 // The path the daemon will see, with `..` resolved, so the prefix check can't be walked out of.
 const clientPath = (url) => {
-  const { pathname, search } = new URL(url ?? '/', 'http://gateway')
-  return pathname.startsWith(PREFIX) ? pathname + search : undefined
+  try {
+    const { pathname, search } = new URL(url ?? '/', 'http://gateway')
+    return pathname.startsWith(PREFIX) ? pathname + search : undefined
+  } catch {
+    return undefined // unparseable, so never forwarded
+  }
 }
 
 const forwardHeaders = (headers, bearer) => {
