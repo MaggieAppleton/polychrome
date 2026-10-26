@@ -19,7 +19,7 @@ Two code reviewers, each a separate agent running the built-in code-review skill
 
 One design reviewer, when files under `src/` that render UI changed:
 
-- **Design.** Applies `maggie-design` and `campsite-design`. No dot separators, no coloured left borders or bars, as few type sizes as possible.
+- **Design.** Applies `interface-grammar` in review mode first, then `maggie-design` and `campsite-design`. No dot separators, no coloured left borders or bars, as few type sizes as possible.
 
 ## Merge
 

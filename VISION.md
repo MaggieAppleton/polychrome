@@ -10,7 +10,7 @@ When I come back to the laptop with free attention, whatever time of day that is
 
 ### Focus on one thing, then related things
 
-The queue is grouped by subject. If twelve things need me and three are about interface design, those three come together as a set. I shouldn't jump from a back-end decision to an interface decision to a CI failure. Once I've loaded up context on one thing, Polychrome keeps me there.
+The queue is grouped by project first, then by subject. If twelve things need me and three are about interface design in one project, those three come together as a set. I shouldn't jump from a back-end decision to an interface decision to a CI failure. Once I've loaded up context on one thing, Polychrome keeps me there.
 
 ### What fills the queue
 
@@ -21,6 +21,10 @@ The queue is grouped by subject. If twelve things need me and three are about in
 ### The chief of staff
 
 I have one free-flowing place to talk: a chief-of-staff agent. I can say "I think we built the back end the wrong way" or "I want this new feature" without working it out first. The chief of staff turns that into an item, does useful research or prototyping, and brings it back when its time comes, with things for me to react to. It gives me a reflective surface to develop the idea on.
+
+### Many projects, one place
+
+Polychrome runs across all my projects, not just one. Fractal already works this way: every agent works in a folder of its own, and one Fractal runs them all. The chief of staff covers every project, and its staff belong to a project, like `polychrome/builder`. Each project keeps its own setup in its own repo: issues, what done means, the quality mission. The attention queue and the overview bring everything together, while keeping each project's items distinct.
 
 ### Ideas wait until their time
 
