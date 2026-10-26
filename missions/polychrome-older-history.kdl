@@ -1,0 +1,39 @@
+version 2
+
+// issues/010: scroll back through a conversation's older history. Starts after slice-1 is merged:
+//
+//   st missions start polychrome/older-history --id first --after mission-run/polychrome/quality/slice-1 \
+//     --workspace /Users/maggieappleton/Projects/polychrome --as person/maggieappleton
+mission "polychrome/older-history" state="ready" {
+  goal "Scrolling near the top of a conversation loads its older history, as issues/010 asks."
+  goal "The change passes the polychrome/quality mission and is merged into main."
+  constraint "Work only inside /Users/maggieappleton/Projects/polychrome. Treat reference/fractal as read-only; never change Fractal itself or its API."
+  constraint "Build on @fractal/sdk and @fractal/client. Add no button, setting or text the feature does not need, and no instructional text: older messages load on their own when the reader nears the top, keeping the reader's place."
+  constraint "Run locally only. Publish, push or deploy nothing."
+  constraint "Hand well-defined, rote work (running commands, searching files, taking screenshots) to a cheaper subagent: the Agent tool with model haiku or sonnet. Keep design and code decisions for yourself."
+
+  step "build" timeout="4h" {
+    assigned-to "agent/polychrome/builder"
+    title "Load older history on scroll"
+    goal "On a new branch older-history from main, load older timeline pages as the reader scrolls near the top of a conversation. Use the timeline's older-page cursor (readOlder/applyOlderPage in @fractal/client; see docs/clients/build-your-own.md in reference/fractal), drop pages made stale by a replace frame, and keep the scroll position steady as rows are added above."
+    goal "Test the paging logic, check it in the running app on a long conversation, save a screenshot to docs/screenshots/older-history.png, set issues/010 to in-mission, and commit on older-history."
+  }
+
+  step "quality" timeout="6h" {
+    assigned-to "agent/polychrome/builder"
+    depends-on { step "build" completed }
+    title "The branch passes the quality mission"
+    goal "Start the quality mission on the branch (st missions start polychrome/quality --id older-history --workspace /Users/maggieappleton/Projects/polychrome --input branch=older-history), do its remediate and merge steps, then set issues/010 to done on main."
+    gate "the quality run completed" {
+      exec "st missions show mission-run/polychrome/quality/older-history 2>/dev/null | grep -q 'completed · terminal' || exit 1"
+      host "local"
+      workspace "${ST_WORKSPACE}"
+    }
+  }
+
+  step "try-it" {
+    assigned-to "person/maggieappleton"
+    depends-on { step "quality" completed }
+    goal "Scroll back through a long conversation at http://127.0.0.1:5199 (run pnpm dev in ~/Projects/polychrome) and say what to change."
+  }
+}
