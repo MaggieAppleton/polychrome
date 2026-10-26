@@ -1,4 +1,3 @@
-import { Option } from 'effect'
 import { useEffect, useState } from 'react'
 import { canSend, readAgents, type Agent } from './fractal.ts'
 import { Conversation } from './Conversation.tsx'
@@ -75,7 +74,7 @@ export function App() {
           </button>
         ))}
       </nav>
-      {agent?.id && <Conversation key={agent.id} agentId={agent.id} sessionId={agent.current_session_id && Option.getOrUndefined(agent.current_session_id)} name={agent.name} granted={granted} />}
+      {agent?.id && <Conversation key={agent.id} agentId={agent.id} name={agent.name} granted={granted} />}
     </div>
   )
 }

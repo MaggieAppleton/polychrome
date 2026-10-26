@@ -1,6 +1,6 @@
 import { FractalClient, type CollectionFrame, type CollectionSocket, type CollectionSocketFactory } from '@fractal/client'
 import { decodeConversationChunk, St3, St3Live, type DecodedAgent } from '@fractal/sdk/effect'
-import { Effect, Fiber, ManagedRuntime, Stream } from 'effect'
+import { Effect, Fiber, ManagedRuntime, Option, Stream } from 'effect'
 import { fold, ordered, pageBefore, withOlder, type Entry, type TimelinePage } from './timeline.ts'
 
 export type Agent = DecodedAgent
@@ -27,6 +27,16 @@ const browserSocket: CollectionSocketFactory = (url, protocols) => {
 const runtime = ManagedRuntime.make(
   St3Live({ baseUrl: window.location.origin, client: 'polychrome', maxFollows: 8, socket: browserSocket }),
 )
+
+/** The agent's current harness session, if it has one. */
+const sessionOf = (agent: Agent) => (agent.current_session_id ? Option.getOrUndefined(agent.current_session_id) : undefined)
+
+// The session to page back through, read fresh: an agent that restarts moves to a new session,
+// and pages from the old one must not merge into the new thread.
+const currentSession = async (ref: string) => {
+  const agent = (await readAgents()).find((a) => a.id === ref)
+  return agent === undefined ? undefined : sessionOf(agent)
+}
 
 export const readAgents = () =>
   runtime.runPromise(Effect.gen(function* () {
@@ -68,12 +78,13 @@ const readTimeline = (sessionId: string) => async (cursor?: string): Promise<Tim
  * Follows one agent's conversation. `loadOlder` reads the page before the oldest entry held; a
  * replace frame starts a new history, and pages requested before it are dropped.
  */
-export const followConversation = (ref: string, sessionId: string | undefined, onChange: (state: ConversationState) => void) => {
+export const followConversation = (ref: string, onChange: (state: ConversationState) => void) => {
   let byId: ReadonlyMap<string, Entry> = new Map()
   let live = false
   let history = 0
+  let session: string | undefined
   let cursor: { value: string; at: number } | undefined
-  let start = sessionId === undefined
+  let start = false
   let loadingOlder = false
   let olderFailed: string | undefined
   const publish = () =>
@@ -89,7 +100,7 @@ export const followConversation = (ref: string, sessionId: string | undefined, o
             if (event.value.replace) {
               history++
               cursor = undefined
-              start = sessionId === undefined || !event.value.hasMore
+              start = !event.value.hasMore
               loadingOlder = false
             }
             byId = fold(byId, event.value)
@@ -101,23 +112,35 @@ export const followConversation = (ref: string, sessionId: string | undefined, o
   )
 
   const loadOlder = async () => {
-    if (sessionId === undefined || start || loadingOlder) return
+    if (start || loadingOlder) return
     const asked = history
     loadingOlder = true
     olderFailed = undefined
     publish()
     try {
+      const sessionId = await currentSession(ref)
+      if (asked !== history) return
+      if (sessionId !== session) cursor = undefined
+      session = sessionId
+      if (sessionId === undefined) {
+        start = true
+        return
+      }
       const page = await pageBefore(readTimeline(sessionId), cursor, ordered(byId)[0])
       if (asked !== history) return
       byId = withOlder(byId, page.entries)
       cursor = page.cursor === undefined ? undefined : { value: page.cursor, at: Date.now() }
       start = !page.hasMore
-    } catch (cause) {
+    } catch {
       if (asked !== history) return
-      olderFailed = cause instanceof Error ? cause.message : 'Earlier messages could not be read.'
+      cursor = undefined
+      olderFailed = "Earlier messages couldn't load."
+    } finally {
+      if (asked === history) {
+        loadingOlder = false
+        publish()
+      }
     }
-    loadingOlder = false
-    publish()
   }
 
   return {

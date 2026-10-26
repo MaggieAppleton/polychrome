@@ -58,6 +58,17 @@ describe('pageBefore', () => {
     expect(reads).toEqual(['c1'])
   })
 
+  it('walks back from the newest page when st has discarded a fresh cursor', async () => {
+    const reads: (string | undefined)[] = []
+    const read = async (c?: string) => {
+      reads.push(c)
+      if (c === 'gone') throw Object.assign(new Error('expired'), { response: { code: 'page-cursor-expired' } })
+      return page(['m'], '2026-10-26T09:00:00Z', false)
+    }
+    await pageBefore(read, { value: 'gone', at: 1000 }, entry('a', '2026-10-26T10:00:00Z'), 2000)
+    expect(reads).toEqual(['gone', undefined])
+  })
+
   it('walks back from the newest page when the cursor is stale, until a page reaches past the oldest', async () => {
     const pages: Record<string, TimelinePage> = {
       newest: page(['n'], '2026-10-26T12:00:00Z', true, 'p2'),

@@ -37,12 +37,20 @@ export const messageIdOf = async (idempotencyKey: string) => {
 /** One page of a session's timeline, newest first; `cursor` reads the page before it. */
 export type TimelinePage = { readonly entries: readonly Entry[]; readonly hasMore: boolean; readonly cursor?: string }
 
-/** st keeps a page cursor for five minutes; an older one starts again from the newest page. */
+// Paging after Fractal's readOlder/applyOlderPage (clients/typescript/fractal-views/sessionView.ts),
+// which compare raw string timestamps; Polychrome holds the SDK's decoded entries. Carry changes across.
+
+/** st keeps a page cursor for five minutes; one older than four (a minute's margin) is not used. */
 export const CURSOR_LIFE_MS = 240_000
 
+/** st discarded the cursor (for example after a restart), so the walk starts again from the newest page. */
+const cursorExpired = (error: unknown) =>
+  typeof error === 'object' && error !== null && 'response' in error &&
+  (error as { response?: { code?: unknown } }).response?.code === 'page-cursor-expired'
+
 /**
- * The page before `oldest`. A fresh cursor continues where the last page ended. Without one, pages
- * are read again from the newest until one reaches past `oldest`, so nothing between is skipped.
+ * The page before `oldest`. A fresh cursor continues where the last page ended. Without one, or
+ * when st has let it go, pages are read again from the newest until one reaches past `oldest`.
  */
 export const pageBefore = async (
   read: (cursor?: string) => Promise<TimelinePage>,
@@ -50,7 +58,13 @@ export const pageBefore = async (
   oldest: Entry | undefined,
   now = Date.now(),
 ): Promise<TimelinePage> => {
-  if (cursor !== undefined && now - cursor.at < CURSOR_LIFE_MS) return read(cursor.value)
+  if (cursor !== undefined && now - cursor.at < CURSOR_LIFE_MS) {
+    try {
+      return await read(cursor.value)
+    } catch (error) {
+      if (!cursorExpired(error)) throw error
+    }
+  }
   let next: string | undefined
   // Bounded, so a very long session stops instead of reading forever.
   for (let hop = 0; hop < 50; hop++) {

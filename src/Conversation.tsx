@@ -59,7 +59,7 @@ function RowView({ row, name }: { row: Row; name: string }) {
 // Within this many pixels of the top, the page before is read.
 const NEAR_TOP = 400
 
-export function Conversation({ agentId, sessionId, name, granted }: { agentId: string; sessionId?: string; name: string; granted?: boolean }) {
+export function Conversation({ agentId, name, granted }: { agentId: string; name: string; granted?: boolean }) {
   const [state, setState] = useState<ConversationState>({ entries: [], live: false, start: false, loadingOlder: false })
   const [draft, setDraft] = useState('')
   const [pending, setPending] = useState<readonly Pending[]>([])
@@ -68,16 +68,19 @@ export function Conversation({ agentId, sessionId, name, granted }: { agentId: s
   const loadOlder = useRef<() => Promise<void>>(async () => {})
   // Distance from the bottom while an older page loads, so rows added above don't move the reader.
   const anchor = useRef<number | null>(null)
+  // After a failed read, the reader retries by leaving the top and scrolling back to it.
+  const leftTop = useRef(true)
 
   useEffect(() => {
-    const follow = followConversation(agentId, sessionId, setState)
+    const follow = followConversation(agentId, setState)
     loadOlder.current = follow.loadOlder
     return follow.stop
-  }, [agentId, sessionId])
+  }, [agentId])
 
   const readBack = () => {
     const el = scroller.current
-    if (!el || state.start || state.loadingOlder) return
+    if (!el || state.start || state.loadingOlder || (state.olderFailed && !leftTop.current)) return
+    leftTop.current = false
     anchor.current = el.scrollHeight - el.scrollTop
     void loadOlder.current()
   }
@@ -100,7 +103,7 @@ export function Conversation({ agentId, sessionId, name, granted }: { agentId: s
   useEffect(() => {
     const el = scroller.current
     if (el && state.live && !state.olderFailed && el.scrollHeight <= el.clientHeight + NEAR_TOP) readBack()
-  })
+  }, [state.live, state.olderFailed, state.start, state.loadingOlder, thread.rows.length])
 
   const send = async () => {
     const text = draft.trim()
@@ -118,7 +121,10 @@ export function Conversation({ agentId, sessionId, name, granted }: { agentId: s
     <main className="conversation">
       <header className="title">
         <h2>{name}</h2>
-        <span className="status">{!state.live ? 'Connecting' : thread.working ? 'Working' : ''}</span>
+        {/* The header holds a failed read-back, so holding the reader's place can't push it out of view. */}
+        <span className={state.olderFailed ? 'status failed' : 'status'}>
+          {!state.live ? 'Connecting' : state.olderFailed ?? (thread.working ? 'Working' : '')}
+        </span>
       </header>
       <div
         className="thread"
@@ -126,10 +132,10 @@ export function Conversation({ agentId, sessionId, name, granted }: { agentId: s
         onScroll={(e) => {
           const el = e.currentTarget
           atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 32
-          if (el.scrollTop < NEAR_TOP) readBack()
+          if (el.scrollTop >= NEAR_TOP) leftTop.current = true
+          else readBack()
         }}
       >
-        {state.olderFailed && <p className="quiet failed">{state.olderFailed}</p>}
         {state.live && state.start && thread.rows.length === 0 && <p className="notice">No messages yet.</p>}
         {thread.rows.map((row) => <RowView key={row.id} row={row} name={name} />)}
         {outbox.map((p) => (
