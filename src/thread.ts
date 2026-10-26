@@ -1,4 +1,4 @@
-import type { Entry } from './fractal.ts'
+import type { Entry } from './timeline.ts'
 
 /** What the thread shows; everything else in the timeline is bookkeeping. */
 export type Row =
@@ -9,9 +9,12 @@ export type Row =
 
 export type Thread = { readonly rows: readonly Row[]; readonly working: boolean }
 
-type Work = { kind: 'work'; id: string; tools: string[]; failed: number; thinking: string[] }
+type Mutable<T> = { -readonly [K in keyof T]: T[K] extends readonly (infer U)[] ? U[] : T[K] }
+// A work row while it is still gathering tool calls and thinking.
+type Work = Mutable<Extract<Row, { kind: 'work' }>>
 
-const SYSTEM_REMINDER = /<system-reminder>[\s\S]*?<\/system-reminder>/g
+// Notes the Claude harness injects into a turn for the model, not for people.
+const HARNESS_NOTES = /<(system-reminder|task-notification)>[\s\S]*?<\/\1>/g
 // Copies of mail the harness injects into a Claude turn; the mail itself arrives as a message entry.
 const DELIVERY = /<channel\b[\s\S]*?<\/channel>|<smalltalk-message\b[\s\S]*?<\/smalltalk-message>|^\[PING from st3\] message\/.*$/gm
 const REASONING = '[reasoning]\n'
@@ -23,23 +26,25 @@ const hiddenBlocks = (entry: Extract<Entry, { type: 'content' }>) =>
   entry.body.blocks?.some((b) => b.kind !== 'source_record' && (b.visibility === 'internal' || b.visibility === 'hidden-by-harness')) ?? false
 
 /** Strips harness bookkeeping from prose; undefined when nothing a person wrote remains. */
-export const cleanText = (text: string): string | undefined => {
-  const clean = text.replace(SYSTEM_REMINDER, '').replace(DELIVERY, '').trim()
+const cleanText = (text: string): string | undefined => {
+  const clean = text.replace(HARNESS_NOTES, '').replace(DELIVERY, '').trim()
   return clean === '' ? undefined : clean
 }
 
 export const toThread = (entries: readonly Entry[]): Thread => {
-  const rows: (Row | Work)[] = []
+  const rows: Row[] = []
   const results = new Map<string, boolean>()
   let from: string | undefined
   let working = false
 
+  // The work row still gathering; any other row ends it.
+  let run: Work | undefined
   const work = (id: string) => {
-    const last = rows.at(-1)
-    if (last?.kind === 'work') return last as Work
-    const next: Work = { kind: 'work', id, tools: [], failed: 0, thinking: [] }
-    rows.push(next)
-    return next
+    if (run === undefined) {
+      run = { kind: 'work', id, tools: [], failed: 0, thinking: [] }
+      rows.push(run)
+    }
+    return run
   }
 
   for (const entry of entries) {
@@ -66,6 +71,7 @@ export const toThread = (entries: readonly Entry[]): Thread => {
         if (hiddenBlocks(entry) || raw.startsWith('[unrecognized ')) continue
         if (raw === 'Conversation compacted') {
           rows.push({ kind: 'divider', id: entry.id, text: 'Conversation compacted' })
+          run = undefined
           continue
         }
         if (entry.role === 'assistant' && raw.startsWith(REASONING)) {
@@ -77,6 +83,7 @@ export const toThread = (entries: readonly Entry[]): Thread => {
         if (text === undefined || entry.role === 'tool') continue
         rows.push({ kind: 'text', id: entry.id, role: entry.role, text, ...(from === undefined ? {} : { from }) })
         from = undefined
+        run = undefined
         continue
       }
       default:

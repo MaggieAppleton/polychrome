@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Entry } from './fractal.ts'
+import type { Entry } from './timeline.ts'
 import { toThread } from './thread.ts'
 
 let seq = 0
@@ -29,6 +29,7 @@ describe('toThread', () => {
   it('strips system reminders and delivery copies, dropping turns left empty', () => {
     const { rows } = toThread([
       content('user', '<system-reminder>be brief</system-reminder>\nWhat changed?'),
+      content('user', '<task-notification>\n<task-id>b1</task-id>\n<status>failed</status>\n</task-notification>'),
       content('user', '<channel source="st">\n<smalltalk-message id="1">ping</smalltalk-message>\n</channel>'),
     ])
     expect(rows).toEqual([expect.objectContaining({ kind: 'text', text: 'What changed?' })])

@@ -10,12 +10,21 @@ const DROP = new Set(['authorization', 'cookie', 'host', 'origin', 'referer'])
 
 const credential = () => (existsSync(CREDENTIAL_FILE) ? readFileSync(CREDENTIAL_FILE, 'utf8').trim() : undefined)
 
-// Loopback only, and a browser Origin (if any) must be this dev server.
+// Loopback only, and a browser Origin (if any) must be this dev server. Browsers omit Origin on
+// no-cors GETs from other sites (<img>, <script>), so Sec-Fetch-Site, when sent, must say same-origin.
 const admitted = (req, port) => {
   const host = req.headers.host ?? ''
   if (host !== `127.0.0.1:${port}` && host !== `localhost:${port}`) return false
+  const site = req.headers['sec-fetch-site']
+  if (site !== undefined && site !== 'same-origin' && site !== 'none') return false
   const origin = req.headers.origin
   return origin === undefined ? !req.headers.upgrade : origin === `http://${host}`
+}
+
+// The path the daemon will see, with `..` resolved, so the prefix check can't be walked out of.
+const clientPath = (url) => {
+  const { pathname, search } = new URL(url ?? '/', 'http://gateway')
+  return pathname.startsWith(PREFIX) ? pathname + search : undefined
 }
 
 const forwardHeaders = (headers, bearer) => {
@@ -37,12 +46,13 @@ export function polychromeGateway() {
       const port = () => vite.httpServer?.address()?.port
 
       vite.middlewares.use((req, res, next) => {
-        if (!req.url?.startsWith(PREFIX)) return next()
+        const path = clientPath(req.url)
+        if (path === undefined) return next()
         if (!admitted(req, port())) return refuse(res, 403, 'forbidden', 'Only this dev server may use the gateway.')
         const bearer = credential()
         if (bearer === undefined) return refuse(res, 401, 'not-paired', 'Polychrome is not paired with Fractal yet.')
         const upstream = request(
-          { socketPath: SOCKET, path: req.url, method: req.method, headers: forwardHeaders(req.headers, bearer) },
+          { socketPath: SOCKET, path, method: req.method, headers: forwardHeaders(req.headers, bearer) },
           (answer) => {
             res.writeHead(answer.statusCode ?? 502, answer.headers)
             answer.pipe(res)
@@ -53,13 +63,14 @@ export function polychromeGateway() {
       })
 
       vite.httpServer?.on('upgrade', (req, socket, head) => {
-        if (!req.url?.startsWith(PREFIX)) return
+        const path = clientPath(req.url)
+        if (path === undefined) return
         const bearer = credential()
         if (!admitted(req, port()) || bearer === undefined) return socket.destroy()
         const upstream = connect(SOCKET, () => {
           const headers = forwardHeaders(req.headers, bearer)
           const lines = Object.entries(headers).flatMap(([k, v]) => (Array.isArray(v) ? v : [v]).map((x) => `${k}: ${x}`))
-          upstream.write(`GET ${req.url} HTTP/1.1\r\n${lines.join('\r\n')}\r\n\r\n`)
+          upstream.write(`GET ${path} HTTP/1.1\r\n${lines.join('\r\n')}\r\n\r\n`)
           if (head.length > 0) upstream.write(head)
           upstream.pipe(socket)
           socket.pipe(upstream)

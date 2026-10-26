@@ -64,14 +64,17 @@ h2, h3, p { margin: 0; font-size: inherit; }
 
 .agent {
   all: unset;
+  display: flex;
+  min-width: 0;
   padding: 6px 8px;
   border-radius: 6px;
   color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   cursor: default;
 }
+/* The prefix truncates first; the distinguishing last segment stays whole. */
+.agent .prefix { min-width: 1ch; overflow: hidden; text-overflow: ellipsis; color: var(--text-quaternary); }
+.agent .tail { flex-shrink: 0; }
 .agent:hover { background: var(--bg-tertiary); }
 .agent[aria-current='true'] { background: var(--bg-tertiary); color: var(--text-primary); font-weight: 500; }
 .agent:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -110,7 +113,7 @@ h2, h3, p { margin: 0; font-size: inherit; }
 .prose { overflow-wrap: anywhere; }
 .prose > * { margin: 0 0 8px; }
 .prose > :last-child { margin-bottom: 0; }
-.prose :is(h1, h2, h3, h4) { font-size: inherit; font-weight: 600; }
+.prose :is(h1, h2, h3, h4, strong, b, th) { font-size: inherit; font-weight: 600; }
 .prose a { color: var(--accent); }
 .prose code { font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .prose pre { padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); overflow-x: auto; }
@@ -118,7 +121,13 @@ h2, h3, p { margin: 0; font-size: inherit; }
 .prose :is(th, td) { padding: 2px 8px; border: 0.5px solid var(--border-primary); }
 
 .quiet { color: var(--text-quaternary); }
-.quiet summary { cursor: default; }
+/* Rows that open show their marker only on hover, so they read like the rows that don't. */
+.quiet summary { list-style: none; cursor: default; }
+.quiet summary::-webkit-details-marker { display: none; }
+.quiet summary::after { content: ' ›'; opacity: 0; transition: opacity 120ms; }
+.quiet summary:hover { color: var(--text-tertiary); }
+.quiet summary:hover::after, .quiet summary:focus-visible::after, .quiet[open] summary::after { opacity: 1; }
+.quiet[open] summary::after { content: ' ⌄'; }
 .failed { color: var(--danger); }
 .divider { color: var(--text-quaternary); text-align: center; }
 
@@ -162,3 +171,18 @@ p.composer { padding: 12px; }
 }
 .composer button:disabled { opacity: 0.3; }
 .composer button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Narrow screens: agents become a scrolling row above the conversation. */
+@media (max-width: 640px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .agents {
+    flex-direction: row;
+    padding: 8px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 0.5px solid var(--border-primary);
+  }
+  .agent { flex-shrink: 0; max-width: 60vw; }
+  .title, .thread { padding-inline: 16px; }
+  .composer { width: calc(100% - 32px); }
+}

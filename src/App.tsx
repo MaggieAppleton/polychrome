@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { readAgents, type Agent } from './fractal.ts'
+import { canSend, readAgents, type Agent } from './fractal.ts'
 import { Conversation } from './Conversation.tsx'
+import { PAIR_STEPS } from './pairing.ts'
 
 type Connection = { state: 'checking' } | { state: 'ready' } | { state: 'blocked'; reason: string }
 
@@ -9,23 +10,44 @@ const checkConnection = async (): Promise<Connection> => {
   const res = await fetch('/v1/client/capabilities').catch(() => undefined)
   if (res?.ok) return { state: 'ready' }
   const code = res === undefined ? 'daemon-unreachable' : ((await res.json().catch(() => ({}))) as { code?: string }).code
-  if (code === 'not-paired')
-    return { state: 'blocked', reason: 'Polychrome is not paired with Fractal yet. Run st devices pair polychrome --as person/NAME --full-control, then pnpm pair with the pairing ID.' }
+  if (code === 'not-paired') return { state: 'blocked', reason: `Polychrome is not paired with Fractal yet. Run ${PAIR_STEPS}.` }
   if (code === 'daemon-unreachable') return { state: 'blocked', reason: 'The Fractal daemon is not running. Start it with st service start.' }
   return { state: 'blocked', reason: 'Fractal refused this device. Its pairing may have expired or been revoked; pair it again.' }
 }
 
-const selectedFromHash = () => decodeURIComponent(window.location.hash.slice(1)) || undefined
+const selectedFromHash = () => {
+  try {
+    return decodeURIComponent(window.location.hash.slice(1)) || undefined
+  } catch {
+    return undefined // a malformed hash selects nothing
+  }
+}
+
+// `polychrome/quality/slice-1/design` shows its distinguishing tail in full and lets the prefix truncate.
+function AgentName({ name }: { name: string }) {
+  const cut = name.lastIndexOf('/')
+  if (cut <= 0) return <span className="tail">{name}</span>
+  return (
+    <>
+      <span className="prefix">{name.slice(0, cut + 1)}</span>
+      <span className="tail">{name.slice(cut + 1)}</span>
+    </>
+  )
+}
 
 export function App() {
   const [connection, setConnection] = useState<Connection>({ state: 'checking' })
   const [agents, setAgents] = useState<readonly Agent[]>([])
+  const [granted, setGranted] = useState<boolean>()
   const [selected, setSelected] = useState(selectedFromHash)
 
   useEffect(() => {
     checkConnection().then((next) => {
       setConnection(next)
-      if (next.state === 'ready') readAgents().then(setAgents, () => setConnection({ state: 'blocked', reason: 'The agent list could not be read.' }))
+      if (next.state !== 'ready') return
+      readAgents().then(setAgents, () => setConnection({ state: 'blocked', reason: 'The agent list could not be read.' }))
+      // The send grant belongs to the device, not to an agent, so it is read once.
+      canSend().then(setGranted, () => setGranted(false))
     })
   }, [])
 
@@ -41,18 +63,18 @@ export function App() {
   }
 
   if (connection.state === 'blocked') return <p className="notice">{connection.reason}</p>
-  const agent = agents.find((a) => a.id === selected)
+  const agent = agents.find((a) => a.id === selected) ?? agents[0]
 
   return (
     <div className="app">
       <nav className="agents" aria-label="Agents">
         {agents.map((a) => (
-          <button key={a.id} className="agent" aria-current={a.id === selected} onClick={() => a.id && choose(a.id)}>
-            {a.name}
+          <button key={a.id} className="agent" title={a.name} aria-current={a.id === agent?.id} onClick={() => a.id && choose(a.id)}>
+            <AgentName name={a.name} />
           </button>
         ))}
       </nav>
-      {agent?.id ? <Conversation key={agent.id} agentId={agent.id} name={agent.name} /> : <p className="notice">Choose an agent.</p>}
+      {agent?.id && <Conversation key={agent.id} agentId={agent.id} name={agent.name} granted={granted} />}
     </div>
   )
 }

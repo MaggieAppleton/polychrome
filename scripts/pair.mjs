@@ -26,7 +26,13 @@ const post = (path, body) =>
       (res) => {
         let text = ''
         res.on('data', (chunk) => (text += chunk))
-        res.on('end', () => resolve({ status: res.statusCode, json: JSON.parse(text) }))
+        res.on('end', () => {
+          try {
+            resolve({ status: res.statusCode, json: JSON.parse(text) })
+          } catch {
+            resolve({ status: res.statusCode, json: { message: text.slice(0, 200) || 'empty response' } })
+          }
+        })
       },
     )
     req.on('error', reject)
