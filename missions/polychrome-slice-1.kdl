@@ -1,0 +1,27 @@
+version 2
+mission "polychrome/slice-1" state="ready" {
+  goal "A minimal Polychrome web app in ~/Projects/polychrome shows one Fractal conversation, reads it cleanly and sends messages, built on the unchanged Fractal SDK."
+  constraint "Work only inside /Users/maggieappleton/Projects/polychrome. Treat reference/fractal as read-only reference; never change Fractal itself or its API."
+  constraint "Blank slate: build on @fractal/sdk and @fractal/client. Reuse @fractal/ui components only where one already fits; add no component, setting, button or feature the slice does not need."
+  constraint "Use the campsite-design skill for interface design. No dot separators between pieces of information, no coloured left borders or bars, as few type sizes as possible; distinguish with colour and weight."
+  constraint "Run locally only. Publish, push or deploy nothing."
+  step "survey" {
+    assigned-to "agent/polychrome/builder"
+    goal "Write docs/survey.md: how fractal-web connects and authenticates to the daemon (including device pairing and the message-send grant), the SDK calls for one conversation, the agent list, alerts and missions, which Claude system events a conversation should hide, the smallest set of @fractal/ui components worth reusing, and how to depend on the SDK, client and UI packages from outside the Fractal monorepo. End with a short build plan for the conversation slice."
+  }
+  step "approve-plan" {
+    assigned-to "person/maggieappleton"
+    depends-on { step "survey" completed }
+    goal "Read docs/survey.md and approve or change the plan for the conversation slice."
+  }
+  step "conversation" {
+    assigned-to "agent/polychrome/builder"
+    depends-on { step "approve-plan" completed }
+    goal "Build the conversation slice as approved: choose one agent, read its thread with Claude bookkeeping events hidden, and send messages, with a plain explanation when sending is not granted. It runs with one dev command, and screenshots of it are saved in docs/screenshots."
+  }
+  step "review" {
+    assigned-to "person/maggieappleton"
+    depends-on { step "conversation" completed }
+    goal "Try the conversation slice and say what to change before the agent list slice."
+  }
+}

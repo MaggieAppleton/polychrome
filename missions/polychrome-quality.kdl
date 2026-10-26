@@ -1,0 +1,133 @@
+version 2
+
+// What done means in Polychrome (QUALITY.md), as a mission. Start it on a branch:
+//
+//   st missions start polychrome/quality --id polychrome/quality/NAME \
+//     --workspace /Users/maggieappleton/Projects/polychrome --input branch=BRANCH --as person/maggieappleton
+//
+// The reviewers share the builder's checkout and only read it. They review `git diff main...BRANCH`.
+mission "polychrome/quality" state="ready" {
+  input "branch" kind="text"
+  goal "The branch ${input.branch} passes typecheck, test and build, and its architecture, security and design reviews are clean."
+  goal "The reviewed branch is merged into main locally."
+  constraint "Run locally only. Publish, push or deploy nothing."
+  constraint "Treat reference/fractal as read-only reference; never change Fractal itself."
+
+  agent "architecture" {
+    workspace "${ST_WORKSPACE}"
+    harness "claude" {}
+    constraint "Do not change, stage or commit files, and do not switch branches."
+  }
+  agent "security" {
+    workspace "${ST_WORKSPACE}"
+    harness "claude" {}
+    constraint "Do not change, stage or commit files, and do not switch branches."
+  }
+  agent "design" {
+    workspace "${ST_WORKSPACE}"
+    harness "claude" {}
+    constraint "Do not change, stage or commit files, and do not switch branches. Write screenshots under /tmp, not the repository."
+  }
+
+  step "checks" {
+    agentless
+    title "Typecheck, test and build pass on the branch"
+    gate "the branch is checked out" {
+      exec "test \"$(git rev-parse --abbrev-ref HEAD)\" = \"${input.branch}\" || exit 1"
+      host "local"
+      workspace "${ST_WORKSPACE}"
+    }
+    gate "pnpm typecheck passes" {
+      exec "pnpm typecheck || exit 1"
+      host "local"
+      workspace "${ST_WORKSPACE}"
+      time-limit "5m"
+    }
+    gate "pnpm test passes" {
+      exec "pnpm test || exit 1"
+      host "local"
+      workspace "${ST_WORKSPACE}"
+      time-limit "5m"
+    }
+    gate "pnpm build passes" {
+      exec "pnpm build || exit 1"
+      host "local"
+      workspace "${ST_WORKSPACE}"
+      time-limit "5m"
+    }
+  }
+
+  step "review-architecture" timeout="1h" {
+    assigned-to "agent/${ST_MISSION_RUN}/architecture"
+    depends-on { step "checks" completed }
+    goal "Review `git diff main...${input.branch}` with the built-in code-review skill for architecture and quality: is this the right shape, and is the code good, clear and no bigger than it needs to be?"
+    goal "Store the findings with `st documents put` and complete this step with the document reference, even when findings exist. Say \"clean\" when there are none."
+  }
+
+  step "review-security" timeout="1h" {
+    assigned-to "agent/${ST_MISSION_RUN}/security"
+    depends-on { step "checks" completed }
+    goal "Review `git diff main...${input.branch}` with the built-in code-review skill for security: credentials stay out of the repo and the browser, the gateway admits only this machine, and nothing is published."
+    goal "Store the findings with `st documents put` and complete this step with the document reference, even when findings exist. Say \"clean\" when there are none."
+  }
+
+  step "review-design" timeout="1h" {
+    assigned-to "agent/${ST_MISSION_RUN}/design"
+    depends-on { step "checks" completed }
+    goal "If `git diff main...${input.branch}` changes no UI under src/, complete this step saying so. Otherwise run the app with `pnpm dev` (it may already be running at http://127.0.0.1:5199), use it, and review it with the maggie-design and campsite-design skills: no dot separators, no coloured left borders or bars, as few type sizes as possible."
+    goal "Store the findings with `st documents put` and complete this step with the document reference, even when findings exist. Say \"clean\" when there are none."
+  }
+
+  step "remediate" timeout="2h" {
+    assigned-to "agent/polychrome/builder"
+    depends-on {
+      step "review-architecture" completed
+      step "review-security" completed
+      step "review-design" completed
+    }
+    goal "Resolve every finding from the three reviews on ${input.branch} and commit the fixes there. A finding that should not be fixed now goes into issues/ with status idea, with the reason."
+    goal "Complete this step with each finding and how it was resolved, or say that all three reviews were clean."
+  }
+
+  step "recheck-architecture" timeout="1h" {
+    assigned-to "agent/${ST_MISSION_RUN}/architecture"
+    depends-on { step "remediate" completed }
+    goal "Check each of your findings against the remediation on ${input.branch}. Complete this step if every one is resolved or logged in issues/; fail it with the unresolved findings otherwise."
+  }
+
+  step "recheck-security" timeout="1h" {
+    assigned-to "agent/${ST_MISSION_RUN}/security"
+    depends-on { step "remediate" completed }
+    goal "Check each of your findings against the remediation on ${input.branch}. Complete this step if every one is resolved or logged in issues/; fail it with the unresolved findings otherwise."
+  }
+
+  step "recheck-design" timeout="1h" {
+    assigned-to "agent/${ST_MISSION_RUN}/design"
+    depends-on { step "remediate" completed }
+    goal "Check each of your findings against the remediation on ${input.branch}. Complete this step if every one is resolved or logged in issues/; fail it with the unresolved findings otherwise."
+  }
+
+  step "merge" timeout="30m" {
+    assigned-to "agent/polychrome/builder"
+    depends-on {
+      step "recheck-architecture" completed
+      step "recheck-security" completed
+      step "recheck-design" completed
+    }
+    goal "Confirm typecheck, test and build still pass on ${input.branch}, then merge it into main locally with a merge commit. Complete this step with the merge commit SHA."
+    gate "main contains the branch" {
+      exec "git merge-base --is-ancestor \"${input.branch}\" main || exit 1"
+      host "local"
+      workspace "${ST_WORKSPACE}"
+    }
+  }
+
+  finally {
+    step "stop-reviewers" {
+      agentless
+      stop "agent/${ST_MISSION_RUN}/architecture"
+      stop "agent/${ST_MISSION_RUN}/security"
+      stop "agent/${ST_MISSION_RUN}/design"
+    }
+  }
+}
