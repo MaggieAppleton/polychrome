@@ -1,0 +1,69 @@
+version 2
+
+// Explore Polychrome's interface: its grammar, surfaces, navigation and brand, as low-fidelity
+// HTML wireframes Maggie reacts to after each of three rounds. Start it in the design worktree:
+//
+//   st missions start polychrome/design-surfaces --id first \
+//     --workspace /Users/maggieappleton/Projects/polychrome/.worktrees/design --as person/maggieappleton
+mission "polychrome/design-surfaces" state="ready" {
+  goal "Define Polychrome's UX grammar, surfaces and navigation as low-fidelity wireframes Maggie can react to."
+  goal "Start DESIGN.md, Polychrome's design philosophy, with the principles that apply beyond Polychrome in their own section."
+
+  constraint "Work only in this workspace, on the design branch, and commit each round there. Publish, push or deploy nothing. Treat reference/fractal (in the main checkout) as read-only."
+  constraint "Read VISION.md and QUALITY.md first. Use the maggie-design and campsite-design skills. Study the references: Linear, https://uiarc.dev, https://www.interfacecraft.dev and Dot by Jason Yuan (https://web.archive.org/web/20231106171857/https://new.computer/)."
+  constraint "Make each wireframe a static HTML page under design/ that opens directly in a browser, with screenshots beside it. Low fidelity: mostly monochrome with a little colour. Where an interaction matters (a sidebar sliding out, zooming into a document) show it moving."
+  constraint "Think of the interface as physical material: layers of paper on a base layer, cards on top, panels that physically slide in and out, motion that obeys physics."
+  constraint "No instructional text anywhere (nothing like 'click here' or 'hover to view'). Text is minimal and essential. Prefer icon buttons; use a text button only for a primary or secondary action whose label clarifies what to do next."
+  constraint "Visual language: soft shadows, hairline borders at 7-10% black, radius 6-16px by element size. Few type sizes: base about 14px, metadata 12-13px, scaled with a fluid Utopia type scale. Inter. Light mode by default, dark mode optional. No dot separators, no coloured left borders or bars."
+  constraint "Work as a senior product designer. Explain each choice briefly in the page itself or in a short notes file beside it, not in the interface."
+  constraint "Hand well-defined, rote work (screenshots, fetching references, file searches) to a cheaper subagent: the Agent tool with model haiku or sonnet. Keep design judgement for yourself."
+
+  agent "designer" {
+    workspace "${ST_WORKSPACE}"
+    harness "claude" {}
+  }
+
+  step "grammar" timeout="3h" {
+    assigned-to "agent/${ST_MISSION_RUN}/designer"
+    title "UX grammar and layer model"
+    goal "Name Polychrome's nouns and verbs: missions, agents, the attention log and its item types, conversations, documents and thinking spaces. Give each noun a shape (how a mission, an agent or an attention item looks) and each verb an interaction. Show this in design/01-grammar/."
+    goal "Show the layer model: what the base layer is, what sits on it, how attention reaches a person calmly but unmistakably, and how a person goes deep into focus with nothing distracting at the edges."
+    goal "Draft DESIGN.md from Maggie's brief in this mission's constraints and what you learn. Complete this step with the paths to open and the questions you most need Maggie to answer."
+    gate "Maggie reacts to the grammar" type="human" mode="feedback" {
+      reviewer "person/maggieappleton"
+      question "Is the UX grammar and layer model right to build surfaces on?"
+    }
+  }
+
+  step "surfaces" timeout="4h" {
+    assigned-to "agent/${ST_MISSION_RUN}/designer"
+    depends-on { step "grammar" completed }
+    title "Surfaces and navigation"
+    goal "Wireframe the core screens in design/02-surfaces/: an overview dashboard, the attention log, a mission, a conversation with an agent, a deep-focus document or thinking space, and an Explore view."
+    goal "Explore navigation in at least three directions (for example sidebar, top bar, floating bar) and how a person zooms into things and moves between them. Animate the transitions that define each direction, and say which you'd choose and why."
+    goal "Update DESIGN.md. Complete this step with the paths to open and the questions you most need Maggie to answer."
+    gate "Maggie reacts to the surfaces" type="human" mode="feedback" {
+      reviewer "person/maggieappleton"
+      question "Which surfaces and navigation direction should Polychrome take forward?"
+    }
+  }
+
+  step "brand" timeout="3h" {
+    assigned-to "agent/${ST_MISSION_RUN}/designer"
+    depends-on { step "surfaces" completed }
+    title "Rainbow brand direction"
+    goal "Explore what a rainbow brand means for Polychrome without a rainbow gradient on every button: where colour lives, what it signifies (for example agents, missions, attention), and how it stays calm. Show three or more directions applied to the chosen surfaces in design/03-brand/."
+    goal "Update DESIGN.md. Complete this step with the paths to open and your recommendation."
+    gate "Maggie reacts to the brand" type="human" mode="feedback" {
+      reviewer "person/maggieappleton"
+      question "Which brand direction should Polychrome use?"
+    }
+  }
+
+  finally {
+    step "stop-designer" {
+      agentless
+      stop "agent/${ST_MISSION_RUN}/designer"
+    }
+  }
+}
