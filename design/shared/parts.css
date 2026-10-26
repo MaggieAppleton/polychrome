@@ -1,0 +1,118 @@
+/* The nouns, as reusable parts. Every page under design/ draws from these. */
+
+.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.i.sm { width: 14px; height: 14px; }
+
+/* Agent: a disc. Round because agents are actors, like people; everything else is rectangular paper. */
+.agent {
+  --size: 24px;
+  position: relative; flex: none;
+  width: var(--size); height: var(--size); border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--tone, #d9d8d4); color: var(--ink);
+  font-size: 11px; font-weight: 600; line-height: 1;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+.agent.lg { --size: 36px; font-size: 13px; }
+.agent[data-state="idle"] { opacity: 0.45; }
+/* Working: a thin arc orbits the disc. Motion means "alive", without a word. */
+.agent[data-state="working"]::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 50%;
+  border: 1.5px solid transparent; border-top-color: var(--ink-2);
+  animation: orbit 1.6s linear infinite;
+}
+/* Waiting on you: a still ring in the attention colour. Stillness plus colour reads as "needs you". */
+.agent[data-state="waiting"]::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 50%;
+  border: 1.5px solid var(--attention);
+}
+@keyframes orbit { to { transform: rotate(360deg); } }
+
+.facepile { display: flex; }
+.facepile .agent { --size: 20px; font-size: 10px; box-shadow: 0 0 0 1.5px var(--card); }
+.facepile .agent + .agent { margin-left: -5px; }
+.facepile .agent::after { inset: -2px; border-width: 1px; }
+
+/* Card: one sheet of paper resting on the ground or on a sheet. */
+.card {
+  background: var(--card);
+  border: 0.5px solid var(--hair-strong);
+  border-radius: var(--r-md);
+  box-shadow: var(--lift-2);
+}
+
+/* Mission: a card with a step track. The track is the mission's shape: you read progress before words. */
+.mission { padding: 12px 14px; display: grid; gap: 10px; width: 300px; }
+.mission .top { display: flex; align-items: center; gap: 8px; }
+.mission .title { font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track { display: flex; gap: 3px; }
+.track i { flex: 1; height: 4px; border-radius: 2px; background: var(--fill-strong); }
+.track i.done { background: var(--ink-3); }
+.track i.now { background: var(--ink); animation: breathe 2.4s ease-in-out infinite; }
+.track i.you { background: var(--attention); }
+.mission .bottom { display: flex; align-items: center; justify-content: space-between; }
+@keyframes breathe { 50% { opacity: 0.45; } }
+
+/* Attention item: a card with a type glyph. Type is a shape, never a coloured bar. */
+.item { padding: 10px 12px; display: grid; grid-template-columns: 20px 1fr; gap: 2px 10px; width: 320px; align-items: start; }
+.item .glyph { grid-row: span 2; width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; background: var(--fill); color: var(--ink-2); margin-top: 1px; }
+.item .glyph .i { width: 13px; height: 13px; }
+.item .title { font-weight: 500; }
+.item .extra { grid-column: 2; margin-top: 8px; }
+.item.fresh .glyph { background: var(--attention-soft); color: var(--attention); }
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  height: 24px; padding: 0 8px; display: inline-flex; align-items: center;
+  border: 0.5px solid var(--hair-strong); border-radius: var(--r-xs);
+  font-size: var(--step--1); color: var(--ink-2); background: var(--sheet);
+}
+.chip.picked { background: var(--ink); color: var(--sheet); border-color: transparent; }
+
+.thumb {
+  height: 64px; border-radius: var(--r-xs); background: var(--sheet);
+  border: 0.5px solid var(--hair); padding: 8px 10px; display: grid; gap: 5px; align-content: start; overflow: hidden;
+}
+.thumb b { display: block; height: 4px; border-radius: 2px; background: var(--fill-strong); }
+
+/* Subject stack: items about one subject rest on each other like a small pile. */
+.stack { position: relative; width: 320px; padding-bottom: 10px; }
+.stack .under {
+  position: absolute; left: 0; right: 0; height: 100%;
+  background: var(--card); border: 0.5px solid var(--hair-strong); border-radius: var(--r-md);
+  box-shadow: var(--lift-1);
+}
+.stack .under:nth-child(1) { top: 10px; transform: scale(0.92); opacity: 0.7; }
+.stack .under:nth-child(2) { top: 5px; transform: scale(0.96); }
+.stack > .item { position: relative; }
+.count {
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--fill-strong); color: var(--ink-2);
+  font-size: 11px; font-weight: 600; display: inline-grid; place-items: center;
+}
+
+/* Decision record: what an item becomes once decided. Smaller, flatter, filed. */
+.record { display: flex; align-items: center; gap: 10px; padding: 8px 12px; width: 320px; border-radius: var(--r-sm); }
+.record .seal { width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: var(--sheet); display: grid; place-items: center; }
+.record .seal .i { width: 11px; height: 11px; stroke-width: 2.4; }
+.record .title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.record .title span { color: var(--ink-3); }
+
+/* Sheet: a large piece of paper. Documents, missions and thinking spaces open onto sheets. */
+.sheet {
+  background: var(--sheet);
+  border: 0.5px solid var(--hair);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-3);
+}
+
+/* Panel: a sheet anchored to an edge, slid in over the ground. */
+.panel {
+  background: var(--panel);
+  border: 0.5px solid var(--hair-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-4);
+}
+
+.lines { display: grid; gap: 7px; }
+.lines b { display: block; height: 6px; border-radius: 3px; background: var(--fill-strong); }

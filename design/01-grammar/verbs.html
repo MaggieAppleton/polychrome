@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polychrome grammar: verbs</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="../shared/parts.css">
+<link rel="stylesheet" href="spec.css">
+<link rel="stylesheet" href="verbs.css">
+</head>
+<body>
+<script src="../shared/icons.js"></script>
+<script src="../shared/spring.js"></script>
+
+<header class="spec-head">
+  <h1>Grammar</h1>
+  <nav><a href="index.html">Nouns</a><a aria-current="page" href="verbs.html">Verbs</a><a href="layers.html">Layers</a></nav>
+</header>
+
+<p class="lede">Each verb is one physical gesture with paper. Agents place, a person picks up, decides, sets aside. Each plays when it scrolls into view and can be replayed. Every motion uses one of three springs: <em>paper</em> for sheets and panels, which settles without overshoot; <em>card</em>, with a small felt bounce; and <em>flick</em> for presses.</p>
+
+<section class="noun">
+  <div class="note">
+    <h2>Raise</h2>
+    <p>An agent places an item on the log. It comes down from just above, slightly large with a deeper shadow, and settles like paper put down on a table. The items below make room.</p>
+    <p>The agent's ring turns to the accent. No sound and no badge: it's like a note left on your desk, which you notice when you look.</p>
+  </div>
+  <div class="stage" data-verb="raise">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="raise-agent"><span class="agent lg" data-state="working" style="--tone:#d3d6d9">R</span></div>
+    <div class="col">
+      <div class="card item" data-new>
+        <span class="glyph"><svg class="i"><use href="#decision"/></svg></span>
+        <span class="title">Which Markdown renderer?</span>
+        <span class="meta">Researcher <span class="when">now</span></span>
+      </div>
+      <div class="card item">
+        <span class="glyph"><svg class="i"><use href="#finding"/></svg></span>
+        <span class="title">Composer shifts 2px on focus</span>
+        <span class="meta">Design review <span class="when">This morning</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="noun">
+  <div class="note">
+    <h2>Gather</h2>
+    <p>A new item on a subject that's already waiting slides under that pile instead of taking its own place. The log stays short and grouped by subject.</p>
+  </div>
+  <div class="stage" data-verb="gather">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="col">
+      <div class="stack">
+        <div class="under"></div><div class="under"></div>
+        <div class="card item">
+          <span class="glyph"><svg class="i"><use href="#review"/></svg></span>
+          <span class="title">Interface design</span>
+          <span class="meta"><span class="n">2</span> items</span>
+        </div>
+      </div>
+    </div>
+    <div class="card item flyer">
+      <span class="glyph"><svg class="i"><use href="#finding"/></svg></span>
+      <span class="title">Icons don't match actions</span>
+      <span class="meta">Design review</span>
+    </div>
+  </div>
+</section>
+
+<section class="noun">
+  <div class="note">
+    <h2>Open</h2>
+    <p>Picking up an item grows the card into the sheet behind it, from where it was. It's the same piece of paper, now larger, so you never lose your place.</p>
+    <p>Everything else steps back and dims. The way out is the same motion run backwards.</p>
+  </div>
+  <div class="stage" data-verb="open">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="col">
+      <div class="card item" data-target>
+        <span class="glyph"><svg class="i"><use href="#decision"/></svg></span>
+        <span class="title">Which Markdown renderer?</span>
+        <span class="meta">Researcher <span class="when">2h</span></span>
+      </div>
+      <div class="card item dimmable">
+        <span class="glyph"><svg class="i"><use href="#finding"/></svg></span>
+        <span class="title">Composer shifts 2px on focus</span>
+        <span class="meta">Design review</span>
+      </div>
+    </div>
+    <div class="sheet opened">
+      <div class="opened-head"><button class="icon-btn" aria-label="Back"><svg class="i"><use href="#back"/></svg></button><span class="title">Which Markdown renderer?</span></div>
+      <div class="opened-body">
+        <div class="lines"><b></b><b style="width:80%"></b></div>
+        <div class="doc-table"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="noun">
+  <div class="note">
+    <h2>Decide</h2>
+    <p>Choosing presses the option down. The card then shrinks into a decision record with a seal and drops below the line into the log's history.</p>
+    <p>The shrinking matters: a decided thing should take up less room than an open one.</p>
+  </div>
+  <div class="stage" data-verb="decide">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="col">
+      <div class="card item" data-target>
+        <span class="glyph"><svg class="i"><use href="#decision"/></svg></span>
+        <span class="title">Which Markdown renderer?</span>
+        <span class="meta">Researcher <span class="when">2h</span></span>
+        <div class="extra chips"><span class="chip" data-pick>markdown-it</span><span class="chip">remark</span><span class="chip">marked</span></div>
+      </div>
+      <hr>
+      <div class="history">
+        <div class="record" data-new><span class="seal"><svg class="i"><use href="#check"/></svg></span><span class="title">markdown-it <span>Markdown renderer</span></span><span class="meta">Now</span></div>
+        <div class="record"><span class="seal"><svg class="i"><use href="#check"/></svg></span><span class="title">Local merges, no pull requests</span><span class="meta">Mon</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="noun">
+  <div class="note">
+    <h2>Set aside</h2>
+    <p>Not now. The card tips and slides off the bottom edge into a small pile of later things. It comes back when its time comes, not on a timer you set.</p>
+    <p>This is how the vision's "ideas wait until their time" feels in the hand.</p>
+  </div>
+  <div class="stage" data-verb="defer">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="col">
+      <div class="card item" data-target>
+        <span class="glyph"><svg class="i"><use href="#idea"/></svg></span>
+        <span class="title">Rebuild the back end around missions</span>
+        <span class="meta">Chief of staff</span>
+        <button class="icon-btn later-btn" aria-label="Not now"><svg class="i"><use href="#later"/></svg></button>
+      </div>
+      <div class="card item">
+        <span class="glyph"><svg class="i"><use href="#finding"/></svg></span>
+        <span class="title">Composer shifts 2px on focus</span>
+        <span class="meta">Design review</span>
+      </div>
+    </div>
+    <div class="later-pile"><svg class="i sm"><use href="#later"/></svg><span class="n num">2</span></div>
+  </div>
+</section>
+
+<section class="noun">
+  <div class="note">
+    <h2>Say</h2>
+    <p>You think aloud to the chief of staff, unformed. What you said lifts out of the conversation as an idea card and moves into the log, where it can wait until its time.</p>
+    <p>Conversation is the input; the log is where things live.</p>
+  </div>
+  <div class="stage" data-verb="say">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="panel say-convo">
+      <div class="convo-head"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span><span class="name">Chief of staff</span></div>
+      <div class="convo-body"><p class="you said-line"></p></div>
+      <div class="composer"><span class="typed"></span><button class="icon-btn" aria-label="Send"><svg class="i"><use href="#send"/></svg></button></div>
+    </div>
+    <div class="col say-log">
+      <div class="card item" data-new>
+        <span class="glyph"><svg class="i"><use href="#idea"/></svg></span>
+        <span class="title">Missions at the core</span>
+        <span class="meta">Preparing</span>
+      </div>
+      <div class="card item">
+        <span class="glyph"><svg class="i"><use href="#decision"/></svg></span>
+        <span class="title">Which Markdown renderer?</span>
+        <span class="meta">Researcher</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="noun">
+  <div class="note">
+    <h2>Peek</h2>
+    <p>A panel slides in from the edge over whatever you're looking at, to check an agent or a mission without leaving. It's anchored to that edge, so it can only slide back the way it came.</p>
+    <p>The ground under it dims a little; nothing else moves.</p>
+  </div>
+  <div class="stage" data-verb="peek">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="col">
+      <div class="card mission">
+        <div class="top"><span class="title">Conversation slice</span><span class="meta num">3 of 5</span></div>
+        <div class="track"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+        <div class="bottom"><span class="meta">Reviewing</span><span class="facepile"><span class="agent" data-state="working" style="--tone:#dcdad5">B</span></span></div>
+      </div>
+    </div>
+    <div class="scrim"></div>
+    <div class="panel peek-panel">
+      <div class="convo-head"><span class="agent" data-state="working" style="--tone:#dcdad5">B</span><span class="name">Builder</span><button class="icon-btn" aria-label="Close"><svg class="i"><use href="#close"/></svg></button></div>
+      <div class="peek-body"><div class="lines"><b></b><b style="width:80%"></b><b style="width:55%"></b></div><div class="lines"><b style="width:90%"></b><b style="width:66%"></b></div></div>
+    </div>
+  </div>
+</section>
+
+<script src="verbs.js"></script>
+</body>
+</html>

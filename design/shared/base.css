@@ -1,0 +1,108 @@
+/* Polychrome wireframe tokens. Shared by every round under design/. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap");
+
+:root {
+  /* Utopia fluid type: 360px → 1440px viewport, ratio 1.2. Only four steps are allowed. */
+  --step--1: clamp(0.75rem, 0.7292rem + 0.0926vw, 0.8125rem);   /* 12 → 13: metadata */
+  --step-0:  clamp(0.875rem, 0.8542rem + 0.0926vw, 0.9375rem);  /* 14 → 15: base */
+  --step-1:  clamp(1.05rem, 1.0167rem + 0.1481vw, 1.15rem);     /* 16.8 → 18.4: sheet titles */
+  --step-2:  clamp(1.26rem, 1.21rem + 0.2222vw, 1.41rem);       /* 20 → 22.5: spec headings only */
+
+  /* Paper. Ground is the table; sheets and cards are paper laid on it. */
+  --ground: #efeeeb;
+  --ground-deep: #e6e5e1;
+  --sheet: #ffffff;
+  --card: #ffffff;
+  --panel: #fbfbfa;
+  --fill: rgba(0, 0, 0, 0.04);
+  --fill-strong: rgba(0, 0, 0, 0.07);
+
+  --ink: #1b1b1a;
+  --ink-2: #5d5c58;
+  --ink-3: #8e8d88;
+  --ink-4: #b9b8b3;
+
+  --hair: rgba(0, 0, 0, 0.08);
+  --hair-strong: rgba(0, 0, 0, 0.1);
+
+  /* One accent in round 1. Brand colour is round 3's question. */
+  --attention: #e2572b;
+  --attention-soft: rgba(226, 87, 43, 0.1);
+  --live: #3f8f5a;
+
+  /* Shadows grow with height above the ground. */
+  --lift-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
+  --lift-2: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+  --lift-3: 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 32px -6px rgba(0, 0, 0, 0.12);
+  --lift-4: 0 4px 8px rgba(0, 0, 0, 0.05), 0 24px 48px -12px rgba(0, 0, 0, 0.18);
+
+  --r-xs: 6px;   /* chips, small buttons */
+  --r-sm: 8px;   /* rows, inputs */
+  --r-md: 10px;  /* cards */
+  --r-lg: 14px;  /* panels, sheets */
+  --r-xl: 16px;  /* the focused sheet */
+
+  /* Springs, written as linear() curves (see spring.js for the generator). */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #141413; --ground-deep: #0f0f0e;
+    --sheet: #1e1e1d; --card: #232322; --panel: #1b1b1a;
+    --fill: rgba(255, 255, 255, 0.05); --fill-strong: rgba(255, 255, 255, 0.08);
+    --ink: #ecebe8; --ink-2: #b0afaa; --ink-3: #7d7c78; --ink-4: #55544f;
+    --hair: rgba(255, 255, 255, 0.08); --hair-strong: rgba(255, 255, 255, 0.12);
+    --lift-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --lift-2: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+    --lift-3: 0 2px 4px rgba(0, 0, 0, 0.3), 0 12px 32px -6px rgba(0, 0, 0, 0.5);
+    --lift-4: 0 4px 8px rgba(0, 0, 0, 0.3), 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: var(--step-0);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01";
+}
+
+button { font: inherit; color: inherit; }
+
+.meta { font-size: var(--step--1); color: var(--ink-3); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Icon button: 28px hit target, quiet until hovered. */
+.icon-btn {
+  display: inline-grid; place-items: center;
+  width: 28px; height: 28px; padding: 0;
+  border: 0; border-radius: var(--r-xs);
+  background: transparent; color: var(--ink-3);
+  cursor: pointer;
+  transition: background 120ms, color 120ms, transform 120ms;
+}
+.icon-btn:hover { background: var(--fill); color: var(--ink); }
+.icon-btn:active { transform: scale(0.94); }
+.icon-btn svg { width: 16px; height: 16px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px;
+  border: 0.5px solid var(--hair-strong); border-radius: var(--r-xs);
+  background: var(--card); box-shadow: var(--lift-1);
+  font-size: var(--step--1); font-weight: 500;
+  cursor: pointer;
+  transition: transform 120ms;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--ink); color: var(--sheet); border-color: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

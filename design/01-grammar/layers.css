@@ -1,0 +1,83 @@
+/* Layers page: the exploded stack and the attention-and-focus prototype. */
+
+b { font-weight: 600; color: var(--ink); }
+
+/* Exploded stack */
+.exploded { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+.exploded .replay { position: absolute; top: 0; right: 0; z-index: 2; }
+.scene { height: 440px; perspective: 2000px; display: grid; place-items: center; }
+.planes { position: relative; width: 340px; height: 230px; transform-style: preserve-3d; transform: rotateX(58deg) rotateZ(-36deg); }
+.plane { position: absolute; inset: 0; transform-style: preserve-3d; border-radius: 14px; }
+.plane .tag {
+  position: absolute; left: -116px; bottom: 6px; width: 96px; text-align: right;
+  font-size: var(--step--1); color: var(--ink-3); font-weight: 500;
+}
+.p0 { background: var(--ground-deep); box-shadow: inset 0 0 0 0.5px var(--hair-strong); }
+.p1 .mini-sheet { position: absolute; left: 24px; top: 20px; width: 190px; height: 190px; padding: 18px; }
+.p2 .mini-card { position: absolute; left: 150px; top: 40px; width: 150px; height: 44px; }
+.p2 .mini-card.two { top: 94px; left: 160px; }
+.p3 .mini-panel { position: absolute; right: 8px; top: 8px; bottom: 8px; width: 92px; }
+.p4 .mini-pop { position: absolute; left: 60px; top: 120px; width: 100px; padding: 8px; display: grid; gap: 6px; box-shadow: var(--lift-4); }
+.p4 .mini-pop b { height: 5px; border-radius: 3px; background: var(--fill-strong); }
+
+.layer-table { border-collapse: collapse; font-size: var(--step--1); }
+.layer-table th { text-align: left; font-weight: 500; color: var(--ink-3); padding: 0 16px 8px 0; }
+.layer-table td { padding: 6px 16px 6px 0; color: var(--ink-2); border-top: 0.5px solid var(--hair); }
+.layer-table td:first-child { color: var(--ink); font-weight: 500; }
+
+/* Prototype */
+.noun.wide { grid-template-columns: 260px 1fr; }
+.frame-wrap { position: relative; }
+.frame-wrap .replay { position: absolute; top: -34px; right: 0; }
+.app {
+  position: relative; width: 740px; height: 520px; overflow: hidden;
+  background: var(--ground); border-radius: var(--r-xl);
+  box-shadow: inset 0 0 0 0.5px var(--hair-strong), var(--lift-2);
+  transition: background 400ms var(--ease-out);
+}
+.app.focused { background: var(--ground-deep); }
+.app .log { position: absolute; left: 20px; top: 20px; width: 300px; display: grid; gap: 10px; }
+.app .log .item, .app .log .stack { width: 100%; }
+.app .motion { position: absolute; left: 340px; top: 20px; display: grid; gap: 10px; }
+.app .mission { width: 270px; }
+
+.focus {
+  position: absolute; left: 150px; top: 18px; width: 440px; bottom: 18px;
+  visibility: hidden; transform-origin: 0 0; overflow: hidden; border-radius: var(--r-xl);
+}
+.focus-bar { display: flex; justify-content: space-between; padding: 8px 8px 0; opacity: 0; transition: opacity 260ms; }
+.focus-bar.show { opacity: 1; }
+.focus-body { padding: 8px 36px 28px; display: grid; gap: 14px; }
+.focus-text { margin: 0; color: var(--ink-2); }
+.compare { display: grid; grid-template-columns: 76px repeat(3, 1fr); font-size: var(--step--1); border-top: 0.5px solid var(--hair); }
+.compare > div { padding: 7px 8px 7px 0; border-bottom: 0.5px solid var(--hair); color: var(--ink-2); }
+.compare .h { font-weight: 600; color: var(--ink); }
+.compare .k { color: var(--ink-3); }
+.focus-actions { display: flex; gap: 8px; padding-top: 4px; }
+
+.side { position: absolute; right: 14px; top: 14px; bottom: 14px; width: 270px; display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: minmax(0, 1fr); transform: translateX(calc(100% + 24px)); }
+.side .convo-body { align-content: start; }
+
+/* The slip: a card pushed up from under the bottom edge. */
+.slip {
+  position: absolute; left: 50%; bottom: 0; height: 60px;
+  display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px;
+  border-radius: var(--r-md) var(--r-md) 0 0; box-shadow: var(--lift-3);
+  transform: translate(-50%, 100%);
+}
+.slip .glyph { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; background: var(--attention-soft); color: var(--attention); }
+.slip .glyph .i { width: 13px; height: 13px; }
+.slip-count { font-size: var(--step--1); font-weight: 600; color: var(--attention); line-height: 20px; }
+.slip-title { max-width: 0; overflow: hidden; white-space: nowrap; line-height: 20px; font-weight: 500; opacity: 0; transition: max-width 420ms var(--ease-out), opacity 300ms 80ms; }
+.slip.open .slip-title { max-width: 240px; opacity: 1; }
+
+.steps { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; counter-reset: s; }
+.steps li { counter-increment: s; font-size: var(--step--1); color: var(--ink-4); padding: 3px 0; transition: color 200ms; }
+.steps li::before { content: counter(s); display: inline-block; width: 18px; font-variant-numeric: tabular-nums; }
+.steps li.now { color: var(--ink); font-weight: 500; }
+.steps li.done { color: var(--ink-3); }
+
+@media (max-width: 1100px) {
+  .noun.wide { grid-template-columns: 1fr; }
+  .exploded { grid-template-columns: 1fr; }
+}

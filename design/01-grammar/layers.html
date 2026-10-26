@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polychrome grammar: layers</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="../shared/parts.css">
+<link rel="stylesheet" href="spec.css">
+<link rel="stylesheet" href="layers.css">
+</head>
+<body>
+<script src="../shared/icons.js"></script>
+<script src="../shared/spring.js"></script>
+
+<header class="spec-head">
+  <h1>Grammar</h1>
+  <nav><a href="index.html">Nouns</a><a href="verbs.html">Verbs</a><a aria-current="page" href="layers.html">Layers</a></nav>
+</header>
+
+<p class="lede">Five layers, each a little higher off the table. Height is shown three ways at once: a deeper shadow, a slightly stronger hairline and a firmer spring. Nothing is flat and nothing floats without a reason. A thing is only as high as how temporary it is.</p>
+
+<section class="noun">
+  <div class="note">
+    <h2>The stack</h2>
+    <p><b>Ground</b> is the table: warm grey, never white, holding no content of its own. Because it's the darkest surface, anything placed on it reads as paper.</p>
+    <p><b>Sheets</b> are what you work on: a mission, a document, a thinking space. At most one sheet is ever in focus.</p>
+    <p><b>Cards</b> rest on the ground or on a sheet: attention items, missions in a list.</p>
+    <p><b>Panels</b> slide in from an edge: a conversation, a peek. They're always anchored to the edge they came from.</p>
+    <p><b>Popovers</b> are menus and tooltips: the highest layer and the shortest-lived.</p>
+  </div>
+  <div class="exploded">
+    <button class="icon-btn replay" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="scene">
+      <div class="planes">
+        <div class="plane p0"><span class="tag">Ground</span></div>
+        <div class="plane p1"><div class="sheet mini-sheet"><div class="lines"><b></b><b style="width:70%"></b><b style="width:85%"></b></div></div><span class="tag">Sheet</span></div>
+        <div class="plane p2"><div class="card mini-card"></div><div class="card mini-card two"></div><span class="tag">Cards</span></div>
+        <div class="plane p3"><div class="panel mini-panel"></div><span class="tag">Panel</span></div>
+        <div class="plane p4"><div class="card mini-pop"><b></b><b></b><b></b></div><span class="tag">Popover</span></div>
+      </div>
+    </div>
+    <table class="layer-table">
+      <tr><th></th><th>Shadow</th><th>Hairline</th><th>Spring</th></tr>
+      <tr><td>Ground</td><td>none</td><td>none</td><td>none</td></tr>
+      <tr><td>Sheet</td><td>lift 3</td><td>8%</td><td>paper</td></tr>
+      <tr><td>Card</td><td>lift 2</td><td>10%</td><td>card</td></tr>
+      <tr><td>Panel</td><td>lift 4</td><td>10%</td><td>paper</td></tr>
+      <tr><td>Popover</td><td>lift 4</td><td>10%</td><td>flick</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="noun wide">
+  <div class="note">
+    <h2>Attention and focus</h2>
+    <p>The overview is the ground, with the attention log on its left and missions in motion beside it. Opening an item makes it a sheet in focus. The log and missions slide off, and the edges are left as empty table.</p>
+    <p>Controls in focus appear only while the pointer moves, and fade when it stops. The conversation slides in beside the sheet, pushing it aside rather than covering it, because talking is about the thing in front of you.</p>
+    <p>Attention that arrives during focus doesn't interrupt. It slides a slip of card up from under the bottom edge: a glyph and a count, no words. It moves once, never pulses, and is the only colour on screen. Bring the pointer near it and it rises far enough to read. It's calm because it doesn't move again, and unmistakable because it's physically there until you deal with it.</p>
+    <ol class="steps">
+      <li data-step="0">Overview</li>
+      <li data-step="1">Raise</li>
+      <li data-step="2">Focus</li>
+      <li data-step="3">Talk beside it</li>
+      <li data-step="4">Attention arrives</li>
+      <li data-step="5">Glance at it</li>
+      <li data-step="6">Step back</li>
+    </ol>
+  </div>
+
+  <div class="frame-wrap">
+    <button class="icon-btn replay" id="replay-app" aria-label="Replay"><svg class="i"><use href="#replay"/></svg></button>
+    <div class="app" id="app">
+      <!-- Ground: overview -->
+      <div class="log" id="log">
+        <div class="stack">
+          <div class="under"></div><div class="under"></div>
+          <div class="card item">
+            <span class="glyph"><svg class="i"><use href="#review"/></svg></span>
+            <span class="title">Interface design</span>
+            <span class="meta">3 items <span class="when">Designer</span></span>
+          </div>
+        </div>
+        <div class="card item" id="target" data-new>
+          <span class="glyph"><svg class="i"><use href="#decision"/></svg></span>
+          <span class="title">Which Markdown renderer?</span>
+          <span class="meta">Researcher <span class="when">now</span></span>
+        </div>
+        <div class="card item">
+          <span class="glyph"><svg class="i"><use href="#idea"/></svg></span>
+          <span class="title">Rebuild the back end around missions</span>
+          <span class="meta">Chief of staff</span>
+        </div>
+      </div>
+
+      <div class="motion" id="motion">
+        <div class="card mission">
+          <div class="top"><span class="title">Conversation slice</span><span class="meta num">3 of 5</span></div>
+          <div class="track"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i></div>
+          <div class="bottom"><span class="meta">Reviewing</span><span class="facepile"><span class="agent" data-state="working" style="--tone:#dcdad5">B</span><span class="agent" style="--tone:#e2e0db">Q</span></span></div>
+        </div>
+        <div class="card mission">
+          <div class="top"><span class="title">Quality mission</span><span class="meta num">1 of 4</span></div>
+          <div class="track"><i class="now"></i><i></i><i></i><i></i></div>
+          <div class="bottom"><span class="meta">Building</span><span class="facepile"><span class="agent" data-state="working" style="--tone:#dcdad5">B</span></span></div>
+        </div>
+        <div class="card mission">
+          <div class="top"><span class="title">Markdown renderer research</span><span class="meta num">2 of 2</span></div>
+          <div class="track"><i class="done"></i><i class="you"></i></div>
+          <div class="bottom"><span class="meta">Waiting on you</span><span class="facepile"><span class="agent" id="researcher" data-state="working" style="--tone:#d3d6d9">R</span></span></div>
+        </div>
+      </div>
+
+      <!-- Sheet in focus -->
+      <div class="sheet focus" id="focus">
+        <div class="focus-bar" id="bar">
+          <button class="icon-btn" id="back" aria-label="Back"><svg class="i"><use href="#back"/></svg></button>
+          <button class="icon-btn" id="talk" aria-label="Conversation"><svg class="i"><use href="#panel"/></svg></button>
+        </div>
+        <div class="focus-body">
+          <div class="doc-title">Which Markdown renderer?</div>
+          <p class="focus-text">All three render our survey correctly. They differ in plugins, size and how they handle raw HTML.</p>
+          <div class="compare">
+            <div></div><div class="h">markdown-it</div><div class="h">remark</div><div class="h">marked</div>
+            <div class="k">Size</div><div>Small</div><div>Large</div><div>Smallest</div>
+            <div class="k">Plugins</div><div>Many</div><div>Most</div><div>Few</div>
+            <div class="k">Raw HTML</div><div>Off by default</div><div>Via plugin</div><div>On by default</div>
+          </div>
+          <div class="focus-actions"><button class="btn primary">Choose markdown-it</button><button class="btn">Ask for more</button></div>
+        </div>
+      </div>
+
+      <!-- Panel -->
+      <div class="panel side" id="side">
+        <div class="convo-head"><span class="agent" style="--tone:#d3d6d9">R</span><span class="name">Researcher</span></div>
+        <div class="convo-body">
+          <p class="you">Why not remark, if it has the most plugins?</p>
+          <div class="said"><span class="agent" style="--tone:#d3d6d9">R</span><p>It's four times the size and we use none of them. markdown-it covers tables and footnotes, the two we need.</p></div>
+        </div>
+        <div class="composer"><span class="placeholder">Reply</span><button class="icon-btn" aria-label="Send"><svg class="i"><use href="#send"/></svg></button></div>
+      </div>
+
+      <!-- Slip -->
+      <div class="slip card" id="slip">
+        <span class="glyph"><svg class="i"><use href="#problem"/></svg></span>
+        <span class="slip-count num">1</span>
+        <span class="slip-title">Typecheck fails on the slice</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="layers.js"></script>
+</body>
+</html>
