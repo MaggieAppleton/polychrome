@@ -75,7 +75,7 @@ mission "polychrome/quality" state="ready" {
   step "review-design" timeout="1h" {
     assigned-to "agent/${ST_MISSION_RUN}/design"
     depends-on { step "checks" completed }
-    goal "If `git diff main...${input.branch}` changes no UI under src/, complete this step saying so. Otherwise run the app with `pnpm dev` (it may already be running at http://127.0.0.1:5199), use it, and review it with the maggie-design and campsite-design skills: no dot separators, no coloured left borders or bars, as few type sizes as possible."
+    goal "If `git diff main...${input.branch}` changes no UI under src/, complete this step saying so. Otherwise run the app with `pnpm dev` (it may already be running at http://127.0.0.1:5199), use it, and review it with the interface-grammar skill in review mode first (reconstruct the implied model, report findings highest layer first), then the maggie-design and campsite-design skills: no dot separators, no coloured left borders or bars, as few type sizes as possible."
     goal "Store the findings with `st documents put` and complete this step with the document reference, even when findings exist. Say \"clean\" when there are none."
   }
 
