@@ -1,6 +1,6 @@
 # Polychrome: design
 
-Draft 1, 2026-10-26, after round 1 (grammar and layers). Written from Maggie's brief in the design-surfaces mission and what the wireframes in `design/01-grammar/` taught us. Expect it to change after each round.
+Draft 2, 2026-10-27, after Maggie's feedback on round 1 (grammar and layers). Written from Maggie's brief in the design-surfaces mission and what the wireframes in `design/01-grammar/` taught us. Expect it to change after each round.
 
 ## Principles beyond Polychrome
 
@@ -34,7 +34,7 @@ A thing is as high as it is temporary.
 
 ### Two shapes
 
-**Discs are agents.** They're the only round things, so an actor can be told from an object at a glance. **Rectangles are everything agents act on.** An agent's state shows as motion: an arc circles a working agent, a still ring in the accent marks one waiting on you, and an idle agent fades.
+**Discs are agents.** They're the only round things, so an actor can be told from an object at a glance. **Rectangles are everything agents act on.** An agent's state shows as motion: an arc circles a working agent, a still ring in the accent marks one waiting on you, and an idle agent fades. The grey discs are placeholders. Agents should feel alive, perhaps as rainbow forms drawn with shaders (issue 013).
 
 ### Nouns
 
@@ -44,7 +44,7 @@ See `design/01-grammar/index.html`.
 - **Mission**: a card with a step track, one bar per step, so progress and "stuck on you" read before the title.
 - **Attention item**: a card with a type glyph. There are five types: decision, review, finding, idea and problem. Each item shows the thing itself (options, a preview), so it can be understood without opening it.
 - **Subject**: items on one subject rest on each other as a pile. Grouping by subject (VISION.md) becomes physical.
-- **Attention log**: one column. Open piles on top, a hairline, then the decisions already made. It's a log, not an inbox, so nothing disappears.
+- **Attention log**: one column. Open piles on top, a hairline, then recent decisions. It's a log, not an inbox, so nothing disappears. The last five to ten decisions stay on screen, where they can be undone or looked at again. Older ones fade into an archive you can open.
 - **Decision record**: what an item becomes once decided. It's smaller and flatter, with a seal, and keeps the choice, the reasons and a link to the mission it started.
 - **Conversation**: a tall panel beside the thing it's about. It goes to the chief of staff by default. No bubbles.
 - **Document**: a portrait sheet with wide margins and no toolbar.
@@ -58,7 +58,7 @@ See `design/01-grammar/verbs.html`.
 - **Gather**: a new item on a waiting subject slides under that pile.
 - **Open**: the card grows into its sheet from where it was. Everything else steps back.
 - **Decide**: the option presses down, and the card shrinks into a decision record that drops into the history.
-- **Set aside**: the card tips off the bottom edge into a later pile. It returns when its time comes.
+- **Set aside**: "I don't have to think about this right now." The card tips off the bottom edge into a later pile. By default, Polychrome decides when it returns. A split button's triangle offers tomorrow, next week or later for when you want to choose (issue 014).
 - **Say**: what you tell the chief of staff lifts out of the conversation as an idea card and moves to the log.
 - **Peek**: a panel slides in from an edge over the current view, and slides back the same way.
 
@@ -67,7 +67,8 @@ See `design/01-grammar/verbs.html`.
 - **The overview is the ground**, with the attention log on it and missions in motion beside it.
 - **Focus is one sheet on an empty table.** Opening an item zooms it into a sheet, and the log and missions slide off. Controls appear only while the pointer moves.
 - **Talking happens beside the sheet.** The conversation pushes the sheet aside rather than covering it.
-- **Attention during focus is a slip.** A sliver of card slides up from under the bottom edge, showing only a glyph and a count. It moves once and then stays still. Bring the pointer near and it rises far enough to read. When you step back, it settles into the log as an ordinary item.
+- **Only urgent attention reaches you in focus.** An ordinary question waits until you step back. Urgent means an urgent problem, or an agent stuck on you for a long time. How urgency is decided is open (issue 012).
+- **Urgent attention is a slip.** A sliver of card slides up from under the bottom edge, showing only a glyph and a count. It moves once and then stays still. Bring the pointer near and it rises far enough to read. When you step back, it settles into the log as an ordinary item.
 
 ### Motion
 
@@ -81,4 +82,4 @@ Every animation uses one of them, so everything feels like the same material.
 
 ### Colour
 
-Round 1 uses one accent, a warm orange-red. It is used only for attention: an unseen item's glyph, a ring on a waiting agent, a step waiting on you, and the slip. Everything else is monochrome. Where the rainbow brand lives is round 3's question. Agent hues are the leading candidate.
+There's one accent, a warm orange-red, and it means only "this needs you": an unseen item's glyph, a ring on a waiting agent, a step waiting on you, the slip. This stays true after the brand arrives. The rainbow lives elsewhere, and where is round 3's question.
