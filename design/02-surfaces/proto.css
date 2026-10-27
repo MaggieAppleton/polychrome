@@ -1,0 +1,23 @@
+/* Shared frame for the navigation prototypes: the app is a fixed 1280×800 world scaled to fit the window. */
+html, body { height: 100%; }
+body { overflow: hidden; background: var(--ground-deep); }
+.app {
+  position: fixed; left: 50%; top: 50%; width: 1280px; height: 800px;
+  transform-origin: 50% 50%; overflow: hidden; background: var(--ground);
+}
+
+/* An opened sheet. Surfaces that are already sheets lose their own border inside it. */
+.layer {
+  position: absolute; transform-origin: 0 0; overflow: hidden;
+  background: var(--sheet); border: 0.5px solid var(--hair); border-radius: var(--r-xl); box-shadow: var(--lift-3);
+}
+.layer > .surface.sheet { border: 0; box-shadow: none; border-radius: 0; }
+.layer::after {
+  content: ""; position: absolute; inset: 0; background: var(--ground-deep); opacity: var(--shade, 0);
+  pointer-events: none; transition: opacity 300ms;
+}
+.layer-bar { position: absolute; top: 8px; left: 8px; z-index: 2; opacity: 0; transition: opacity 260ms; }
+.moving .layer:last-child .layer-bar { opacity: 1; }
+
+.scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.05); opacity: 0; pointer-events: none; }
+.scrim.on { pointer-events: auto; }

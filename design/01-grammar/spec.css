@@ -22,7 +22,6 @@ figure { margin: 0; display: grid; gap: 10px; justify-items: start; }
 .specimens.row figure { justify-items: center; }
 figcaption { font-size: var(--step--1); color: var(--ink-3); }
 
-.when { color: var(--ink-4); margin-left: 6px; }
 
 .log { display: grid; gap: 10px; width: 320px; }
 .log hr { border: 0; border-top: 0.5px solid var(--hair-strong); margin: 8px 0; width: 100%; }

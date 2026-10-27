@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polychrome navigation: stack</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="../shared/parts.css">
+<link rel="stylesheet" href="surfaces.css">
+<link rel="stylesheet" href="proto.css">
+<style>
+  .ground { position: absolute; inset: 0; transform-origin: 50% 40%; }
+  .table { position: absolute; inset: 0 auto 0 0; width: 2560px; display: flex; }
+  .place { width: 1280px; height: 100%; position: relative; }
+
+  /* The floating bar: places, the chief and find. The functional layer, floating above the content. */
+  .bar {
+    position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 6px; padding: 5px;
+    background: var(--card); border: 0.5px solid var(--hair-strong); border-radius: 14px; box-shadow: var(--lift-3);
+    z-index: 50;
+  }
+  .places { position: relative; display: flex; gap: 2px; }
+  .ind { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 9px; background: var(--fill-strong); }
+  .places .icon-btn { width: 32px; height: 32px; position: relative; border-radius: 9px; }
+  .places .icon-btn[aria-current] { color: var(--ink); }
+  .places .icon-btn:hover { background: transparent; }
+  .ask {
+    display: flex; align-items: center; gap: 8px; width: 300px; height: 32px; padding: 0 10px 0 6px;
+    border: 0; border-radius: 9px; background: var(--fill); cursor: text; color: var(--ink-4); text-align: left;
+  }
+  .ask .agent { --size: 20px; font-size: 10px; }
+  .seam { width: 0.5px; height: 20px; background: var(--hair-strong); margin: 0 2px; }
+</style>
+</head>
+<body>
+<script src="../shared/icons.js"></script>
+<script src="../shared/spring.js"></script>
+<script src="surfaces.js"></script>
+
+<div class="app">
+  <div class="ground" id="ground">
+    <div class="table" id="table">
+      <div class="place" data-place="attention"></div>
+      <div class="place" data-place="overview"></div>
+    </div>
+  </div>
+  <div class="scrim" id="scrim"></div>
+  <div id="layers"></div>
+  <nav class="bar" id="bar">
+    <div class="places">
+      <span class="ind" id="ind"></span>
+      <button class="icon-btn" data-go="0" aria-label="Attention" aria-current="page"><svg class="i"><use href="#attention"/></svg></button>
+      <button class="icon-btn" data-go="1" aria-label="Overview"><svg class="i"><use href="#grid"/></svg></button>
+    </div>
+    <span class="seam"></span>
+    <button class="ask" id="ask" aria-label="Message the chief"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span>Message the chief</button>
+    <button class="icon-btn" id="find" aria-label="Find"><svg class="i"><use href="#search"/></svg></button>
+  </nav>
+</div>
+
+<script src="proto.js"></script>
+<script src="stack.js"></script>
+</body>
+</html>

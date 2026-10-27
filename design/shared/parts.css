@@ -116,3 +116,4 @@
 
 .lines { display: grid; gap: 7px; }
 .lines b { display: block; height: 6px; border-radius: 3px; background: var(--fill-strong); }
+.when { color: var(--ink-3); margin-left: 6px; }

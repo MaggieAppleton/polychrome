@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polychrome surfaces</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="../shared/parts.css">
+<link rel="stylesheet" href="../01-grammar/spec.css">
+<link rel="stylesheet" href="surfaces.css">
+<style>
+  .frame { width: 768px; height: 480px; overflow: hidden; border-radius: var(--r-xl); box-shadow: inset 0 0 0 0.5px var(--hair-strong), var(--lift-2); }
+  .frame .world { width: 1280px; height: 800px; transform: scale(0.6); transform-origin: 0 0; background: var(--ground); position: relative; }
+  .slot { position: absolute; inset: 0; }
+  .slot.sheeted { inset: 28px 200px; }
+  .slot.sheeted > .surface { border-radius: var(--r-xl); }
+  .noun { grid-template-columns: 240px 1fr; }
+</style>
+</head>
+<body>
+<script src="../shared/icons.js"></script>
+<script src="surfaces.js"></script>
+
+<header class="spec-head">
+  <h1>Surfaces</h1>
+  <nav><a aria-current="page" href="index.html">Surfaces</a><a href="stack.html">Stack</a><a href="rail.html">Rail</a><a href="table.html">Table</a></nav>
+</header>
+
+<p class="lede">The six surfaces at rest, without navigation. Each navigation direction arranges these same surfaces, so the directions differ only in where things live and how you move between them. Two are homes on the ground: <em>Attention</em> for deciding and <em>Overview</em> for overseeing, the two views in VISION.md. The other four open as sheets on top of them.</p>
+
+<section class="noun"><div class="note"><h2>Attention</h2>
+  <p>The deciding home. One column, read top to bottom: urgent first, then by subject. The first decision shows its options in place.</p>
+  <p>Below the line are things set aside, as a count, and recent decisions that fade with age before moving to the archive.</p></div>
+  <div class="frame"><div class="world"><div class="slot" data-s="attention"></div></div></div></section>
+
+<section class="noun"><div class="note"><h2>Overview</h2>
+  <p>The overseeing home. Missions in motion, the changelog and the agents. "Unasked" marks the fixes agents made without asking, which VISION.md wants visible.</p>
+  <p>Nothing here asks anything of you. That's the attention home's job.</p></div>
+  <div class="frame"><div class="world"><div class="slot" data-s="overview"></div></div></div></section>
+
+<section class="noun"><div class="note"><h2>Mission</h2>
+  <p>The step track from the mission card, stood up as a vertical path. The current step opens to show what's happening. Below the path is what the mission has made so far.</p></div>
+  <div class="frame"><div class="world"><div class="slot sheeted" data-s="mission"></div></div></div></section>
+
+<section class="noun"><div class="note"><h2>Conversation</h2>
+  <p>With the chief of staff. On the right is what became of what you said: each idea as an item, with where it is now.</p>
+  <p>This is how you can see that talking turned into something.</p></div>
+  <div class="frame"><div class="world"><div class="slot sheeted" data-s="conversation"></div></div></div></section>
+
+<section class="noun"><div class="note"><h2>Thinking space</h2>
+  <p>Deep focus on one question. The researcher's sheets are laid out on open ground: the comparison, both renderers side by side, and a benchmark. The researcher is docked at the seam on the right.</p>
+  <p>One text button, because choosing is the point of this surface.</p></div>
+  <div class="frame"><div class="world"><div class="slot" data-s="space"></div></div></div></section>
+
+<section class="noun"><div class="note"><h2>Explore</h2>
+  <p>Find anything. One field, with results grouped by concept, and each result drawn in its own shape: a decision as a record, a mission as its card, a change as a changelog row.</p>
+  <p>Explore isn't a place to browse. It's the verb "find", which works on everything.</p></div>
+  <div class="frame"><div class="world"><div class="slot" data-s="explore"></div></div></div></section>
+
+<script>
+  for (const slot of document.querySelectorAll("[data-s]")) slot.innerHTML = Surfaces[slot.dataset.s]();
+</script>
+</body>
+</html>
