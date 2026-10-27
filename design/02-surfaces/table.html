@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polychrome navigation: table</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="../shared/parts.css">
+<link rel="stylesheet" href="surfaces.css">
+<link rel="stylesheet" href="proto.css">
+<style>
+  /* One world, larger than the screen. The camera moves over it. */
+  .world { position: absolute; left: 0; top: 0; width: 3800px; height: 900px; transform-origin: 0 0; }
+  .region { position: absolute; top: 0; width: 1280px; height: 800px; }
+  .r-archive { left: 0; }
+  .r-attention { left: 1300px; }
+  .r-overview { left: 2560px; }
+  .archive { padding: 56px 0 0 380px; display: grid; gap: 4px; width: 820px; align-content: start; }
+  .archive .record { width: 100%; }
+
+  /* Where you are: shown only while moving, or when zoomed out. */
+  .where { position: absolute; top: 16px; left: 20px; font-size: var(--step--1); font-weight: 500; color: var(--ink-3); opacity: 0; transition: opacity 260ms; z-index: var(--z-float); }
+  .map {
+    position: absolute; right: 16px; bottom: 16px; width: 168px; height: 52px; padding: 8px; z-index: var(--z-float);
+    background: var(--card); border: 0.5px solid var(--hair-strong); border-radius: 10px; box-shadow: var(--lift-2);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; opacity: 0; visibility: hidden; transition: opacity 260ms, visibility 0s 260ms;
+  }
+  .map button { border: 0; border-radius: 4px; background: var(--fill-strong); cursor: pointer; padding: 0; }
+  .map button[aria-current] { background: var(--ink-3); }
+  /* Away from Attention, its region in the map takes the accent: things are waiting there. */
+  .map button.waiting { background: var(--attention); }
+  .moving .where, .moving .map, .far .where, .far .map { opacity: 1; visibility: visible; transition-delay: 0s; }
+
+  .find-float { position: absolute; left: 50%; top: 24px; transform: translate(-50%, -80px); z-index: var(--z-float); opacity: 0; }
+  .find-float .find { width: 480px; }
+  .chief { position: absolute; right: 196px; bottom: 16px; z-index: var(--z-float); border: 0; padding: 0; background: none; cursor: pointer; opacity: 0; visibility: hidden; transition: opacity 260ms, visibility 0s 260ms; }
+  .chief .agent { --size: 36px; font-size: 13px; box-shadow: var(--lift-2); }
+  .moving .chief { opacity: 1; visibility: visible; transition-delay: 0s; }
+</style>
+</head>
+<body>
+<script src="../shared/icons.js"></script>
+<script src="../shared/spring.js"></script>
+<script src="surfaces.js"></script>
+
+<div class="app">
+  <div class="world" id="world">
+    <div class="region r-archive" data-region="archive"></div>
+    <div class="region r-attention" data-place="attention"></div>
+    <div class="region r-overview" data-place="overview"></div>
+  </div>
+  <div class="scrim" id="scrim"></div>
+  <div id="layers"></div>
+  <div class="where" id="where">Attention</div>
+  <div class="find-float" id="findFloat"><div class="find"><svg class="i"><use href="#search"/></svg><span class="typed-q">markdown</span></div></div>
+  <button class="chief" id="ask" aria-label="Chief of staff" data-tip="Chief of staff  C"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span></button>
+  <nav class="map" id="map">
+    <button data-go="archive" aria-label="Decided" data-tip="Decided  3"></button>
+    <button data-go="attention" aria-label="Attention" data-tip="Attention  1" aria-current="page"></button>
+    <button data-go="overview" aria-label="Overview" data-tip="Overview  2"></button>
+  </nav>
+</div>
+
+<script src="proto.js"></script>
+<script src="table.js"></script>
+</body>
+</html>

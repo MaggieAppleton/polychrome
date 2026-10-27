@@ -22,6 +22,8 @@ function goPlace(n) {
   go(table, `translateX(${-1280 * n}px)`);
   go($("ind"), `translateX(${34 * n}px)`, "card");
   document.querySelectorAll("[data-go]").forEach((b) => b.toggleAttribute("aria-current", +b.dataset.go === n));
+  // Away from Attention, a mark says things are waiting there.
+  $("mark").classList.toggle("on", n !== 0);
 }
 document.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => goPlace(+b.dataset.go)));
 
@@ -40,21 +42,28 @@ function restack() {
   go(ground, deep ? "scale(0.97)" : "none");
   move(scrim, [{ opacity: deep ? 0 : 1 }, { opacity: deep ? 1 : 0 }], "paper");
   scrim.classList.toggle("on", deep);
+  ground.inert = deep;
   go(bar, deep ? "translate(-50%, 90px)" : "translateX(-50%)");
 }
 
 function open(id, origin) {
+  // A new sheet replaces what the dock was serving, so the dock leaves first.
+  if (window.Proto.docking && stack.length) { window.Proto.undock(); Object.assign(stack.at(-1).layer.style, { left: FOCUS.x + "px", width: FOCUS.w + "px" }); }
+  // Read where it comes from before anything moves (the bar sinks as the stack grows).
+  const start = rect(origin);
   const layer = document.createElement("div");
   layer.className = "layer";
   Object.assign(layer.style, { left: FOCUS.x + "px", top: FOCUS.y + "px", width: FOCUS.w + "px", height: FOCUS.h + "px" });
-  layer.innerHTML = `<div class="layer-bar"><button class="icon-btn" aria-label="Back"><svg class="i"><use href="#back"/></svg></button></div>` + Surfaces[id]();
+  layer.innerHTML = `<div class="layer-bar"><button class="icon-btn" aria-label="Back" data-tip="Back  Esc"><svg class="i"><use href="#back"/></svg></button></div>` + Surfaces[id]();
   layer.querySelector('[aria-label="Back"]').onclick = back;
-  layer.style.zIndex = 10 + stack.length;
+  layer.style.zIndex = `calc(var(--z-sheet) + ${stack.length})`;
   layers.append(layer);
-  stack.push({ layer, origin });
+  stack.push({ layer, origin, start });
   restack();
   // Grow from where it came from.
-  move(layer, [{ transform: from(rect(origin), FOCUS), borderRadius: "40px" }, { transform: "none", borderRadius: "16px" }], "paper");
+  const grow = move(layer, [{ transform: from(start, FOCUS), borderRadius: "40px" }, { transform: "none", borderRadius: "16px" }], "paper");
+  // Let go once it has grown, so stepping back later can move it.
+  grow.finished.then(() => grow.cancel());
   move(layer.lastElementChild, [{ opacity: 0 }, { opacity: 0, offset: 0.3 }, { opacity: 1 }], "paper");
   wire(layer);
 }
@@ -62,22 +71,37 @@ function open(id, origin) {
 async function back() {
   const top = stack.pop();
   if (!top) return;
+  if (window.Proto.docking) { window.Proto.undock(); Object.assign(top.layer.style, { left: FOCUS.x + "px", width: FOCUS.w + "px" }); }
+  const { layer, origin, start } = top;
+  // Return to the origin: where it is now if it's on the table, or where the bar held it when it opened.
+  const home = origin.closest(".bar") ? start : rect(origin);
   restack();
-  const { layer, origin } = top;
   move(layer.lastElementChild, [{ opacity: 1 }, { opacity: 0 }], "flick");
-  const to = origin.isConnected ? from(rect(origin), FOCUS) : "translateX(110%)";
+  const to = origin.isConnected ? from(home, FOCUS) : "translateX(110%)";
   await move(layer, [{ transform: "none", borderRadius: "16px" }, { transform: to, borderRadius: "40px" }], "paper").finished;
   layer.remove();
 }
 
 function wire(root) {
-  root.querySelectorAll("[data-open]").forEach((el) => (el.onclick = (e) => { e.stopPropagation(); open(el.dataset.open, el); }));
+  root.querySelectorAll("[data-open]").forEach((el) => window.Proto.openable(el, () => open(el.dataset.open, el)));
 }
 wire(ground);
 scrim.onclick = back;
 addEventListener("keydown", (e) => e.key === "Escape" && back());
 $("find").onclick = () => open("explore", $("find"));
-$("ask").onclick = () => open("conversation", $("ask"));
+// The chief: on the bare table a conversation is a sheet of its own; with a sheet open it docks beside it.
+function talk() {
+  if (!stack.length) return open("conversation", $("ask"));
+  window.Proto.dock(stack.at(-1).layer, FOCUS);
+}
+$("ask").onclick = talk;
+addEventListener("keydown", (e) => {
+  if (e.target.closest("input, textarea")) return;
+  if (e.key === "1" || e.key === "2") goPlace(+e.key - 1);
+  if (e.key === "/") { e.preventDefault(); open("explore", $("find")); }
+  if (e.key === "c") talk();
+});
+$("mark").classList.toggle("on", false);
 
 // In focus the bar is gone; bring the pointer to the bottom edge and it rises back.
 app.addEventListener("pointermove", (e) => {

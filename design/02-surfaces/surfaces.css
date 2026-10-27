@@ -39,7 +39,7 @@
 .mission-sheet { display: grid; grid-template-rows: auto auto 1fr; gap: 22px; align-content: start; }
 .path { list-style: none; margin: 0; padding: 0; display: grid; }
 .path li { position: relative; display: grid; grid-template-columns: 22px 1fr auto; gap: 0 12px; align-items: center; padding: 9px 0; }
-.path li i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink-4); background: var(--sheet); justify-self: center; z-index: 1; }
+.path li i { width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid var(--ink-4); background: var(--sheet); justify-self: center; z-index: calc(var(--z-ground) + 1); }
 .path li::before { content: ""; position: absolute; left: 10.5px; top: 0; bottom: 0; border-left: 1px solid var(--hair-strong); }
 .path li:first-child::before { top: 50%; }
 .path li:last-child::before { bottom: 50%; }
@@ -65,13 +65,13 @@
 .space-ground { position: relative; background: var(--ground-deep); overflow: hidden; }
 .space-ground .sheet { position: absolute; border-radius: var(--r-md); box-shadow: var(--lift-2); }
 .s-doc { left: 48px; top: 48px; width: 400px; padding: 22px; display: grid; gap: 16px; }
-.s-render { left: 480px; top: 70px; width: 300px; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; transform: rotate(0.8deg); }
+.s-render { left: 480px; top: 70px; width: 300px; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .render-pane { display: grid; gap: 6px; padding: 10px; border: 0.5px solid var(--hair); border-radius: 6px; align-content: start; }
 .render-pane b { display: block; height: 5px; border-radius: 3px; background: var(--fill-strong); }
 .render-pane b.h1 { height: 8px; width: 60%; background: var(--ink-4); }
 .render-pane i { display: block; height: 30px; border-radius: 4px; background: var(--fill); }
 .render-pane.alt i { background: repeating-linear-gradient(90deg, var(--fill-strong) 0 1px, transparent 1px 30%); }
-.s-bench { left: 300px; top: 330px; width: 220px; height: 150px; padding: 18px; transform: rotate(-1deg); }
+.s-bench { left: 300px; top: 330px; width: 220px; height: 150px; padding: 18px; }
 .bars { height: 100%; display: flex; align-items: flex-end; gap: 18px; justify-content: center; border-bottom: 0.5px solid var(--hair-strong); }
 .bars span { width: 30px; background: var(--ink-4); border-radius: 3px 3px 0 0; }
 .bars span:first-child { background: var(--ink); }
@@ -94,7 +94,7 @@
 .explore { display: grid; justify-content: center; align-content: start; padding-top: 56px; gap: 28px; }
 .find {
   width: 560px; height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 14px;
-  background: var(--sheet); border: 0.5px solid var(--hair-strong); border-radius: var(--r-md); box-shadow: var(--lift-2);
+  background: var(--sheet); border: 0.5px solid var(--hair-strong); border-radius: var(--r-md);
   color: var(--ink-3);
 }
 .typed-q { color: var(--ink); }

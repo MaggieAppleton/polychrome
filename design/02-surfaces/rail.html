@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polychrome navigation: rail</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="../shared/parts.css">
+<link rel="stylesheet" href="surfaces.css">
+<link rel="stylesheet" href="proto.css">
+<style>
+  .app { display: grid; grid-template-columns: 56px 1fr auto; }
+
+  /* The rail: docked, a peer of the content, so a seam and no shadow. */
+  .rail { position: relative; display: grid; grid-template-rows: auto 1fr auto; justify-items: center; padding: 14px 0; border-right: 0.5px solid var(--hair-strong); background: var(--panel); z-index: var(--z-dock); }
+  .rail .places { position: relative; display: grid; gap: 4px; }
+  .rail .ind { position: absolute; left: 0; top: 0; width: 34px; height: 34px; border-radius: 9px; background: var(--fill-strong); }
+  .rail .icon-btn { width: 34px; height: 34px; position: relative; border-radius: 9px; }
+  .rail .icon-btn[aria-current] { color: var(--ink); }
+  .rail .icon-btn:hover { background: transparent; color: var(--ink); }
+  .rail .me { align-self: end; cursor: pointer; border: 0; padding: 0; background: none; }
+
+  .content { position: relative; overflow: hidden; }
+  .column { position: absolute; inset: 0 auto auto 0; width: 100%; }
+  .place { height: 800px; position: relative; }
+  .crumbs { position: absolute; top: 14px; left: 20px; z-index: var(--z-float); display: flex; gap: 6px; align-items: center; font-size: var(--step--1); color: var(--ink-3); opacity: 0; }
+  .crumbs b { color: var(--ink); font-weight: 500; }
+  .crumbs button { border: 0; padding: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+  .crumbs button:hover { color: var(--ink); }
+  .crumbs svg { width: 12px; height: 12px; transform: rotate(180deg); }
+  .content .layer { border-radius: var(--r-lg); }
+
+  /* Docked conversation: pushes the content narrower. */
+  .side { width: 0; overflow: hidden; border-left: 0.5px solid var(--hair-strong); background: var(--panel); transition: width 0s; }
+  .side-inner { width: 340px; height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: 16px; }
+  .side .msgs { padding: 16px 0; }
+</style>
+</head>
+<body>
+<script src="../shared/icons.js"></script>
+<script src="../shared/spring.js"></script>
+<script src="surfaces.js"></script>
+
+<div class="app">
+  <nav class="rail">
+    <div class="places">
+      <span class="ind" id="ind"></span>
+      <button class="icon-btn" data-go="0" aria-label="Attention" data-tip="Attention  1" data-tip-side="right" aria-current="page"><svg class="i"><use href="#attention"/></svg><span class="mark" id="mark"></span></button>
+      <button class="icon-btn" data-go="1" aria-label="Overview" data-tip="Overview  2" data-tip-side="right"><svg class="i"><use href="#grid"/></svg></button>
+      <button class="icon-btn" id="find" aria-label="Find" data-tip="Find  /" data-tip-side="right"><svg class="i"><use href="#search"/></svg></button>
+    </div>
+    <span></span>
+    <button class="me" id="talk" aria-label="Chief of staff" data-tip="Chief of staff  C" data-tip-side="right"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span></button>
+  </nav>
+
+  <main class="content" id="content">
+    <div class="column" id="column">
+      <div class="place" data-place="attention"></div>
+      <div class="place" data-place="overview"></div>
+    </div>
+    <div class="crumbs" id="crumbs"></div>
+  </main>
+
+  <aside class="side" id="side">
+    <div class="side-inner">
+      <header class="sheet-head"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span><span class="sheet-title">Chief of staff</span></header>
+      <div class="msgs">
+        <p class="you">I think missions should be the core, not conversations.</p>
+        <div class="said"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span><p>Logged as an idea. I'll bring it back when the slice lands.</p></div>
+      </div>
+      <div class="composer"><span class="placeholder">Message the chief</span><button class="icon-btn" aria-label="Send"><svg class="i"><use href="#send"/></svg></button></div>
+    </div>
+  </aside>
+</div>
+
+<script src="proto.js"></script>
+<script src="rail.js"></script>
+</body>
+</html>

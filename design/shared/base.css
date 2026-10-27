@@ -28,7 +28,6 @@
   /* One accent in round 1. Brand colour is round 3's question. */
   --attention: #e2572b;
   --attention-soft: rgba(226, 87, 43, 0.1);
-  --live: #3f8f5a;
 
   /* Shadows grow with height above the ground. */
   --lift-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
@@ -41,6 +40,13 @@
   --r-md: 10px;  /* cards */
   --r-lg: 14px;  /* panels, sheets */
   --r-xl: 16px;  /* the focused sheet */
+
+  /* Stacking order, one token per tier. Raw z-index values aren't used anywhere else. */
+  --z-ground: 0;
+  --z-sheet: 10;     /* sheets in focus; each deeper sheet adds 1 */
+  --z-dock: 20;      /* docked panels: conversation, rail */
+  --z-float: 30;     /* the functional layer: bar, minimap */
+  --z-tether: 40;    /* menus, tooltips */
 
   /* Springs, written as linear() curves (see spring.js for the generator). */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -89,6 +95,19 @@ button { font: inherit; color: inherit; }
 }
 .icon-btn:hover { background: var(--fill); color: var(--ink); }
 .icon-btn:active { transform: scale(0.94); }
+:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+
+/* Tooltip: the name and its shortcut, on hover and keyboard focus. Tethered to its trigger. */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); z-index: var(--z-tether);
+  transform: translate(-50%, 4px); opacity: 0; pointer-events: none; white-space: pre;
+  padding: 4px 8px; border-radius: var(--r-xs); background: var(--ink); color: var(--sheet);
+  font-size: var(--step--1); font-weight: 500; transition: opacity 120ms, transform 120ms var(--ease-out);
+}
+[data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); transition-delay: 400ms; }
+[data-tip-side="right"]::after { left: calc(100% + 8px); bottom: auto; top: 50%; transform: translate(4px, -50%); }
+[data-tip-side="right"]:hover::after, [data-tip-side="right"]:focus-visible::after { transform: translate(0, -50%); }
 .icon-btn svg { width: 16px; height: 16px; }
 
 .btn {

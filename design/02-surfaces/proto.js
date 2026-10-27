@@ -39,5 +39,40 @@
     for (const [ms, fn] of steps) { await wait(ms); fn(); }
   }
 
-  window.Proto = { app, rect, from, wait, tour, get scale() { return scale; } };
+  // Docked conversation beside an open sheet. It slides from the right edge and pushes the sheet narrower.
+  // Every move starts from where things are now, so a second press mid-flight reverses smoothly.
+  const docked = document.createElement("aside");
+  docked.className = "docked";
+  docked.innerHTML = window.Surfaces.dock();
+  app.append(docked);
+  let docking = false;
+  function dock(sheet, rest) {
+    docking = !docking;
+    const { move } = window.Motion;
+    const now = getComputedStyle(docked).transform;
+    const d = move(docked, [{ transform: now }, { transform: docking ? "none" : "translateX(100%)" }], "paper");
+    d.finished.then(() => { d.commitStyles(); d.cancel(); }).catch(() => {});
+    if (!sheet) return;
+    const to = docking ? { left: "20px", width: `${1280 - 340 - 40}px` } : { left: rest.x + "px", width: rest.w + "px" };
+    const s = sheet.animate([{ left: sheet.style.left, width: sheet.style.width }, to], { ...window.Motion.spring(window.Motion.springs.paper) });
+    Object.assign(sheet.style, to);
+    return s;
+  }
+  // Slide the dock away when the sheet it served closes.
+  function undock() {
+    if (!docking) return;
+    docking = false;
+    window.Motion.move(docked, [{ transform: getComputedStyle(docked).transform }, { transform: "translateX(100%)" }], "paper")
+        .finished.then(() => { docked.style.transform = "translateX(100%)"; }).catch(() => {});
+  }
+
+  // Anything that opens is a button to the keyboard too: focusable, and Enter or Space opens it.
+  function openable(el, fn) {
+    el.tabIndex = 0;
+    el.setAttribute("role", "button");
+    el.onclick = (e) => { e.stopPropagation(); fn(); };
+    el.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } };
+  }
+
+  window.Proto = { app, rect, from, wait, tour, dock, undock, openable, get docking() { return docking; }, get scale() { return scale; } };
 })();

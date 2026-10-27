@@ -1,6 +1,6 @@
 # Polychrome: design
 
-Draft 2, 2026-10-27, after Maggie's feedback on round 1 (grammar and layers). Written from Maggie's brief in the design-surfaces mission and what the wireframes in `design/01-grammar/` taught us. Expect it to change after each round.
+Draft 3, 2026-10-27, after round 2 (surfaces and navigation). The full model, with concepts, matrix, spatial table, behaviour and encoding map, is in `design/design-model.md`. Written from Maggie's brief in the design-surfaces mission and what the wireframes in `design/01-grammar/` taught us. Expect it to change after each round.
 
 ## Principles beyond Polychrome
 
@@ -34,7 +34,7 @@ A thing is as high as it is temporary.
 
 ### Two shapes
 
-**Discs are agents.** They're the only round things, so an actor can be told from an object at a glance. **Rectangles are everything agents act on.** An agent's state shows as motion: an arc circles a working agent, a still ring in the accent marks one waiting on you, and an idle agent fades. The grey discs are placeholders. Agents should feel alive, perhaps as rainbow forms drawn with shaders (issue 013).
+**Discs are agents.** They're the only round things (seals, counts and markers are rounded squares), so an actor can be told from an object at a glance. **Rectangles are everything agents act on.** An agent's state shows as motion: an arc circles a working agent, a still ring in the accent marks one waiting on you, and an idle agent fades. The grey discs are placeholders. Agents should feel alive, perhaps as rainbow forms drawn with shaders (issue 013).
 
 ### Nouns
 
@@ -66,9 +66,30 @@ See `design/01-grammar/verbs.html`.
 
 - **The overview is the ground**, with the attention log on it and missions in motion beside it.
 - **Focus is one sheet on an empty table.** Opening an item zooms it into a sheet, and the log and missions slide off. Controls appear only while the pointer moves.
-- **Talking happens beside the sheet.** The conversation pushes the sheet aside rather than covering it.
+- **Talking happens beside the sheet.** The conversation docks at a seam, with no shadow, and pushes the sheet aside rather than covering it. On the bare table, with nothing open, a conversation with the chief is its own sheet.
 - **Only urgent attention reaches you in focus.** An ordinary question waits until you step back. Urgent means an urgent problem, or an agent stuck on you for a long time. How urgency is decided is open (issue 012).
 - **Urgent attention is a slip.** A sliver of card slides up from under the bottom edge, showing only a glyph and a count. It moves once and then stays still. Bring the pointer near and it rises far enough to read. When you step back, it settles into the log as an ordinary item.
+
+### Surfaces
+
+There are two homes on the ground, matching VISION.md's two views:
+
+- **Attention** is for deciding: the log.
+- **Overview** is for overseeing: missions in motion, changes (including those made without asking) and agents.
+
+Missions, conversations, documents, thinking spaces and find open as sheets on top of them. See `design/02-surfaces/`.
+
+### Navigation (recommended, pending Maggie)
+
+**Stack:**
+
+- **Places** sit side by side on one long table under a small floating bar, which holds the places, the chief and find.
+- **Going deeper** lays a new sheet on top, grown from what you opened. The sheets beneath stay visible as edges, so you can see your depth.
+- **Back** shrinks the top sheet into where it came from.
+- **In focus** there's no chrome. The bar sinks away and comes back at the bottom edge.
+- **Find** borrows from the Table direction: step back to see everything, with matches lit where they live.
+
+**Find is a verb, not a place.** It can be called from anywhere with `/`.
 
 ### Motion
 
@@ -78,8 +99,12 @@ Three springs, defined in `design/shared/spring.js`:
 - **card**: has a small, felt overshoot.
 - **flick**: for presses and toggles.
 
-Every animation uses one of them, so everything feels like the same material.
+Every animation uses one of them, so everything feels like the same material. Motion starts from where things are, so it can be reversed mid-flight. Exits mirror entries.
 
 ### Colour
 
 There's one accent, a warm orange-red, and it means only "this needs you": an unseen item's glyph, a ring on a waiting agent, a step waiting on you, the slip. This stays true after the brand arrives. The rainbow lives elsewhere, and where is round 3's question.
+
+### Components
+
+Build on shadcn/ui's accessible primitives (popover, menu, tooltip, dialog, command) but not its look. The material comes from Polychrome's own tokens. The nouns (cards, piles, the step track, the slip, the stack) and their springs are Polychrome's own.

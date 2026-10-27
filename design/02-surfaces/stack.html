@@ -17,8 +17,8 @@
   .bar {
     position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
     display: flex; align-items: center; gap: 6px; padding: 5px;
-    background: var(--card); border: 0.5px solid var(--hair-strong); border-radius: 14px; box-shadow: var(--lift-3);
-    z-index: 50;
+    background: var(--card); border: 0.5px solid var(--hair-strong); border-radius: 14px; box-shadow: var(--lift-2);
+    z-index: var(--z-float);
   }
   .places { position: relative; display: flex; gap: 2px; }
   .ind { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 9px; background: var(--fill-strong); }
@@ -26,7 +26,7 @@
   .places .icon-btn[aria-current] { color: var(--ink); }
   .places .icon-btn:hover { background: transparent; }
   .ask {
-    display: flex; align-items: center; gap: 8px; width: 300px; height: 32px; padding: 0 10px 0 6px;
+    display: flex; align-items: center; gap: 8px; width: 240px; height: 32px; padding: 0 10px 0 6px;
     border: 0; border-radius: 9px; background: var(--fill); cursor: text; color: var(--ink-4); text-align: left;
   }
   .ask .agent { --size: 20px; font-size: 10px; }
@@ -50,12 +50,12 @@
   <nav class="bar" id="bar">
     <div class="places">
       <span class="ind" id="ind"></span>
-      <button class="icon-btn" data-go="0" aria-label="Attention" aria-current="page"><svg class="i"><use href="#attention"/></svg></button>
-      <button class="icon-btn" data-go="1" aria-label="Overview"><svg class="i"><use href="#grid"/></svg></button>
+      <button class="icon-btn" data-go="0" aria-label="Attention" data-tip="Attention  1" aria-current="page"><svg class="i"><use href="#attention"/></svg><span class="mark" id="mark"></span></button>
+      <button class="icon-btn" data-go="1" aria-label="Overview" data-tip="Overview  2"><svg class="i"><use href="#grid"/></svg></button>
     </div>
     <span class="seam"></span>
-    <button class="ask" id="ask" aria-label="Message the chief"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span>Message the chief</button>
-    <button class="icon-btn" id="find" aria-label="Find"><svg class="i"><use href="#search"/></svg></button>
+    <button class="ask" id="ask" aria-label="Chief of staff" data-tip="Chief of staff  C"><span class="agent" style="--tone:#1b1b1a;color:#fff">C</span></button>
+    <button class="icon-btn" id="find" aria-label="Find" data-tip="Find  /"><svg class="i"><use href="#search"/></svg></button>
   </nav>
 </div>
 

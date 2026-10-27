@@ -16,8 +16,20 @@ body { overflow: hidden; background: var(--ground-deep); }
   content: ""; position: absolute; inset: 0; background: var(--ground-deep); opacity: var(--shade, 0);
   pointer-events: none; transition: opacity 300ms;
 }
-.layer-bar { position: absolute; top: 8px; left: 8px; z-index: 2; opacity: 0; transition: opacity 260ms; }
-.moving .layer:last-child .layer-bar { opacity: 1; }
+.layer-bar { position: absolute; top: 8px; left: 8px; z-index: calc(var(--z-ground) + 1); opacity: 0; visibility: hidden; transition: opacity 260ms, visibility 0s 260ms; }
+.moving .layer:last-child .layer-bar, .layer:last-child .layer-bar:focus-within { opacity: 1; visibility: visible; transition-delay: 0s; }
 
 .scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.05); opacity: 0; pointer-events: none; }
 .scrim.on { pointer-events: auto; }
+
+/* Docked conversation beside an open sheet. Tier 1: slides from the right edge and pushes the sheet aside. */
+.docked {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 340px; z-index: var(--z-dock);
+  display: grid; grid-template-rows: auto 1fr auto; padding: 18px 16px 16px;
+  background: var(--panel); border-left: 0.5px solid var(--hair-strong);
+  transform: translateX(100%);
+}
+
+/* Needs-you mark on the Attention control: the accent, meaning only that. */
+.mark { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; border-radius: 2px; background: var(--attention); opacity: 0; transition: opacity 200ms; }
+.mark.on { opacity: 1; }

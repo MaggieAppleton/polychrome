@@ -39,7 +39,7 @@ window.Surfaces = {
           extra: `<div class="extra chips"><span class="chip">markdown-it</span><span class="chip">remark</span><span class="chip">marked</span></div>` })}
         ${pile({ type: "review", title: "Interface design", count: 3, who: "Designer" })}
         ${item({ type: "idea", title: "Rebuild the back end around missions", who: "Chief of staff", when: "From Tuesday" })}
-        <div class="log-rule"><span class="later"><svg class="i sm"><use href="#later"/></svg><span class="num">2</span></span></div>
+        <div class="log-rule"><span class="later" data-tip="Set aside"><svg class="i sm"><use href="#later"/></svg><span class="num">2</span></span></div>
         <div class="recent">
           ${record("Local merges, no pull requests", "Quality", "Mon")}
           ${record("The chief of staff never builds", "Chief", "Sun")}
@@ -63,11 +63,11 @@ window.Surfaces = {
         <div class="changes">
           <div class="day meta">Today</div>
           <div class="change">${agent("B", "", "#dcdad5")}<span>Hid harness bookkeeping in conversations</span><span class="meta">Slice</span></div>
-          <div class="change">${agent("Q", "", "#e2e0db")}<span>Fixed composer focus ring</span><span class="meta">Unasked</span></div>
+          <div class="change">${agent("Q", "", "#e2e0db")}<span>Fixed composer focus ring</span><span class="meta">Without asking</span></div>
           <div class="change">${agent("B", "", "#dcdad5")}<span>Explained why sending is blocked</span><span class="meta">Slice</span></div>
           <div class="day meta">Yesterday</div>
           <div class="change">${agent("D", "", "#d8d4d9")}<span>Grammar and layer wireframes</span><span class="meta">Design</span></div>
-          <div class="change">${agent("Q", "", "#e2e0db")}<span>Removed unused gateway route</span><span class="meta">Unasked</span></div>
+          <div class="change">${agent("Q", "", "#e2e0db")}<span>Removed unused gateway route</span><span class="meta">Without asking</span></div>
         </div>
       </div>
       <div class="ov-col narrow">
@@ -91,7 +91,7 @@ window.Surfaces = {
         <li class="done"><i></i><span>Build the conversation view</span><span class="meta">Builder</span></li>
         <li class="now"><i></i><span>Review</span><span class="meta">Quality</span>
           <div class="step-detail"><div class="lines"><b></b><b style="width:70%"></b></div></div></li>
-        <li><i></i><span>Maggie approves</span><span class="meta">Gate</span></li>
+        <li><i></i><span>Maggie approves</span><span class="meta">You</span></li>
         <li><i></i><span>Merge</span><span class="meta">Builder</span></li>
       </ol>
       <div class="made">
@@ -111,7 +111,7 @@ window.Surfaces = {
           <p class="you">And I want scheduled design reviews.</p>
           <div class="said">${chief}<p>That one needs your design brief first. I've set it aside until you've written it.</p></div>
         </div>
-        <div class="composer"><span class="placeholder">Message the chief</span><button class="icon-btn" aria-label="Send"><svg class="i"><use href="#send"/></svg></button></div>
+        <div class="composer"><span class="placeholder">Message the chief</span><button class="icon-btn" aria-label="Send" data-tip="Send  ↵"><svg class="i"><use href="#send"/></svg></button></div>
       </div>
       <aside class="became">
         ${item({ type: "idea", title: "Missions at the core", who: "Preparing" })}
@@ -139,7 +139,7 @@ window.Surfaces = {
       <aside class="dock">
         <header class="sheet-head">${agent("R", "waiting", "#d3d6d9")}<span class="sheet-title">Researcher</span></header>
         <div class="msgs"><p class="you">Why not remark?</p><div class="said">${agent("R", "", "#d3d6d9")}<p>Four times the size, and we'd use none of its plugins.</p></div></div>
-        <div class="composer"><span class="placeholder">Reply</span><button class="icon-btn" aria-label="Send"><svg class="i"><use href="#send"/></svg></button></div>
+        <div class="composer"><span class="placeholder">Reply</span><button class="icon-btn" aria-label="Send" data-tip="Send  ↵"><svg class="i"><use href="#send"/></svg></button></div>
       </aside>
     </section>`,
 
@@ -155,7 +155,14 @@ window.Surfaces = {
       </div>
     </section>`,
 
-  // 6. Explore: find anything. One field; results grouped by concept, each with its own shape.
+  // A conversation docked beside an open sheet: a peer of it, so a seam and no shadow.
+  dock: () => `
+    <header class="sheet-head">${chief}<span class="sheet-title">Chief of staff</span></header>
+    <div class="msgs"><p class="you">Is this ready for me, or still moving?</p>
+      <div class="said">${chief}<p>Review is running. I'll bring it to you when quality signs off.</p></div></div>
+    <div class="composer"><span class="placeholder">Reply</span><button class="icon-btn" aria-label="Send" data-tip="Send  ↵"><svg class="i"><use href="#send"/></svg></button></div>`,
+
+  // 6. Find: find anything. One field; results grouped by concept, each with its own shape.
   explore: () => `
     <section class="surface explore" data-surface="explore">
       <div class="find"><svg class="i"><use href="#search"/></svg><span class="typed-q">markdown</span></div>
